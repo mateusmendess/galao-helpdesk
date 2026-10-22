@@ -19,3 +19,6 @@ tools/
 
 # Editor
 .vscode/
+
+# Pedidos do analista (ficam so no computador do Mateus)
+pedidos/
