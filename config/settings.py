@@ -1,0 +1,134 @@
+"""
+Configuracoes do projeto galao-helpdesk.
+
+Tudo que muda entre ambientes (computador do Mateus, CI, producao) vem de
+variaveis de ambiente: SECRET_KEY, DEBUG, ALLOWED_HOSTS e DATABASE_URL.
+Localmente elas ficam no arquivo .env (fora do git; veja .env.example).
+"""
+
+from pathlib import Path
+
+import environ
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+# Le o .env se ele existir; no CI e em producao as variaveis vem do ambiente.
+environ.Env.read_env(BASE_DIR / ".env")
+
+# Sem valor padrao: se faltar, o Django para com erro em vez de usar chave fraca.
+SECRET_KEY = env("SECRET_KEY")
+
+DEBUG = env.bool("DEBUG", default=False)
+
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+
+# Aplicacoes
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "core",
+    "usuarios",
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "config.urls"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = "config.wsgi.application"
+
+
+# Banco de dados: somente via DATABASE_URL
+# (SQLite no computador do Mateus, PostgreSQL no CI e em producao).
+
+DATABASES = {
+    "default": env.db("DATABASE_URL"),
+}
+
+
+# Usuario proprio (vazio por enquanto; campos entram no modulo 2)
+
+AUTH_USER_MODEL = "usuarios.Usuario"
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+
+# Idioma e fuso
+
+LANGUAGE_CODE = "pt-br"
+
+TIME_ZONE = "America/Sao_Paulo"
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Arquivos estaticos (CSS gerado pelo Tailwind em static/css/output.css)
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    # Armazenamento simples do WhiteNoise: comprime, mas sem "manifest"
+    # (o manifest exige collectstatic antes dos testes).
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+
+# E-mail
+
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}
