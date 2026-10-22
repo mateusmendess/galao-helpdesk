@@ -1,0 +1,5 @@
+/* Entrada do Tailwind. A saida minificada vai para static/css/output.css. */
+@import "tailwindcss" source(none);
+
+/* Onde o Tailwind procura as classes usadas. */
+@source "../templates";
