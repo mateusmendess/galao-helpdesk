@@ -45,6 +45,19 @@ python manage.py runserver
 
 O `static/css/output.css` vai para o git: depois de mudar o visual, faça commit dele.
 
+### Primeiro uso do login
+
+```powershell
+python manage.py migrate
+python manage.py createsuperuser          # seu admin: e-mail e senha digitados por você
+python manage.py criar_equipe_de_teste    # Pessoa 1 a 7, sem senha (só com DEBUG=True)
+python manage.py changepassword pessoa1@exemplo.test   # define a senha de uma conta de teste
+python manage.py runserver
+```
+
+Abra http://127.0.0.1:8000 e entre com o e-mail e a senha. Contas novas de verdade
+são cadastradas só pelo admin, em http://127.0.0.1:8000/admin/.
+
 ### Testes e ruff
 
 ```powershell
