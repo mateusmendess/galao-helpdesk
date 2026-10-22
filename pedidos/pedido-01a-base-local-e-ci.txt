@@ -1,0 +1,97 @@
+PEDIDO 01A - BASE LOCAL E CI (projeto galao-helpdesk)
+
+Modulo 1, parte A. A parte B (deploy no Railway) vem em outro pedido, depois.
+NAO faca deploy, NAO crie Procfile e NAO mexa em nada do Railway neste pedido.
+
+OBJETIVO
+Deixar o projeto Django de pe na maquina do Mateus e no GitHub: servidor local rodando, banco PostgreSQL, Tailwind funcionando, ruff, testes e CI verde, com uma pagina inicial "ola" estilizada. Sem regra de negocio (fila, trocas, ausencias): isso comeca nos proximos modulos.
+
+CONTEXTO (leia primeiro)
+- CLAUDE.md (suas regras de trabalho) e estrutura.md (stack, regras e modulos) ja estao na raiz da pasta. Releia o CLAUDE.md inteiro; ele manda em tudo.
+- O sistema: controle de quem e a vez de trocar o galao de agua do time de Help Desk (7 pessoas), no lugar de uma planilha Excel.
+- Stack fechada: Django + PostgreSQL + templates Django + Tailwind CSS (CLI standalone, sem Node) + Gunicorn + WhiteNoise + pytest-django + ruff + GitHub Actions.
+- O Mateus usa Windows: PowerShell para rodar o servidor e Git Bash para o git. Cuidado com fim de linha (CRLF x LF).
+
+LEIA ANTES DE EDITAR (confirme e REPORTE o que encontrar; nao invente)
+1. Liste a pasta. Esperado: CLAUDE.md, estrutura.md e pedidos/ (esta pasta estava vazia antes disso). Se houver outra coisa, reporte e nao apague nada.
+2. `git status` e `git remote -v`: o repositorio ja foi iniciado? Ja tem remoto?
+3. Ferramentas: `python --version`, `pip --version`, `git --version`, `gh --version` e `gh auth status` (nunca imprima token), e se ha como ter PostgreSQL local (`psql --version` ou Docker).
+   - Se o `gh` nao estiver instalado ou autenticado: PARE nesse ponto e reporte como resolver.
+   - Se nao houver PostgreSQL nem Docker: nao instale nada no PC. Para a verificacao local use SQLite temporario (DATABASE_URL=sqlite:///...) e diga isso no relatorio; o CI roda com PostgreSQL de verdade. Reporte tambem que o Mateus vai precisar de um PostgreSQL local antes do modulo 2.
+
+DECISOES JA TOMADAS (nao reabra)
+- Nome tecnico: galao-helpdesk (pasta, repositorio e, depois, Railway).
+- Projeto Django chamado `config`, com `manage.py` na raiz da pasta (nao crie subpasta extra).
+- Dois apps: `core` (pagina inicial) e `usuarios` (modelo de usuario proprio).
+- Usuario proprio DESDE JA: em `usuarios`, `class Usuario(AbstractUser)` VAZIO (so `pass`), `AUTH_USER_MODEL = "usuarios.Usuario"` e a migracao inicial. Por que: trocar o modelo de usuario com o banco ja migrado e muito dificil; vazio agora, o modulo 2 so acrescenta campos. Nao adicione campo nenhum ainda.
+- Dependencias permitidas (so estas; pip + requirements): django, django-environ, psycopg[binary], gunicorn, whitenoise. Dev: pytest, pytest-django, ruff. Fixe as versoes exatas e reporte quais escolheu (Django: a versao estavel atual; diga qual e se e LTS).
+- Variaveis de ambiente (so estas): SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL.
+- Idioma e fuso: LANGUAGE_CODE = "pt-br", TIME_ZONE = "America/Sao_Paulo", USE_TZ = True.
+- Tailwind: CLI standalone (executavel unico, sem Node/npm). O arquivo gerado `static/css/output.css` FICA no git (e pequeno, e assim o Railway nao precisara de etapa de build). O executavel baixado NAO vai para o git.
+- Repositorio PUBLICO (decisao do Mateus, serve de portfolio). Por isso NADA sensivel pode ir para o git. O .gitignore so protege arquivos que ainda nao foram commitados: confira antes de cada push.
+
+PASSO A PASSO
+
+Passo 0 - Repositorio e main
+- `git init` se ainda nao houver, com a branch padrao `main`.
+- Crie `.gitignore` (venv, __pycache__, .env, db.sqlite3, staticfiles/, tools/ , .pytest_cache, .ruff_cache, .vscode/ se quiser) e `.gitattributes` com `* text=auto eol=lf` (evita ruido de CRLF no diff).
+- Primeiro commit na `main` SOMENTE com: CLAUDE.md, estrutura.md, pedidos/, .gitignore e .gitattributes. Esta e a UNICA vez em que se commita na main: ainda nao existe main e a branch de trabalho precisa de uma base. Registre isso no relatorio como excecao consciente.
+- Antes do primeiro push, rode `git ls-files` e confirme que nao ha .env, chaves, bancos nem dados pessoais.
+- Crie o repositorio no GitHub chamado `galao-helpdesk`, PUBLICO, e envie a main (ex.: `gh repo create galao-helpdesk --public --source=. --remote=origin --push`).
+- Como o repositorio e publico, a protecao de branch (exigir CI verde na main) esta disponivel. NAO configure agora: depois do primeiro CI verde, mostre ao Mateus o caminho para ativar.
+
+Passo 1 - Branch do assunto
+- A partir da main: `feat/base-django-e-ci`. Todo o resto vai nela.
+
+Passo 2 - Ambiente
+- `.venv` na raiz (ignorado pelo git). `requirements.txt` (producao) e `requirements-dev.txt` (comeca com `-r requirements.txt`, mais pytest, pytest-django, ruff).
+- Anote a versao do Python usada e use a MESMA versao menor no CI.
+
+Passo 3 - Projeto Django
+- Projeto `config`, apps `core` e `usuarios` como descrito acima. Migracao inicial do `usuarios` criada ANTES do primeiro `migrate`.
+- Templates na pasta `templates/` na raiz (e nao dentro dos apps), com `templates/base.html` e `templates/core/home.html`.
+
+Passo 4 - Configuracoes (settings.py, uma so; sem dividir em varios arquivos)
+- Le SECRET_KEY, DEBUG, ALLOWED_HOSTS e DATABASE_URL do ambiente (django-environ). DEBUG com padrao False. SECRET_KEY sem valor padrao inseguro no codigo.
+- Banco: Postgres via DATABASE_URL.
+- Arquivos estaticos: WhiteNoise no middleware (logo apos o SecurityMiddleware), STATIC_URL, STATIC_ROOT = staticfiles/, STATICFILES_DIRS = [static/]. Use o armazenamento simples do WhiteNoise (sem "manifest"), para nao quebrar os testes; se precisar de outro, explique.
+- Crie `.env.example` (valores FALSOS, comentados, e commitado). O `.env` real e do Mateus: ele cria, voce nunca o le nem o imprime. Para a sua verificacao local use as suas proprias variaveis temporarias.
+
+Passo 5 - Tailwind
+- Baixe o executavel standalone do Tailwind para `tools/` (nome sem versao, ex.: tools/tailwindcss.exe). Versao estavel atual; reporte qual.
+- Entrada: `static_src/input.css` (importa o Tailwind e aponta para `templates/`). Saida: `static/css/output.css` minificado.
+- Comandos que o Mateus vai usar (documente no README): gerar uma vez e modo `--watch` em um segundo terminal.
+
+Passo 6 - Pagina inicial (TELA NOVA: confirme o resultado esperado abaixo antes de aplicar; se discordar, pergunte)
+- Rota `/` (view simples no app `core`, template `core/home.html`, que estende `base.html`).
+- Resultado esperado: fundo cinza muito claro; um cartao branco centralizado, cantos bem arredondados e sombra leve; dentro, o titulo "Troca do Galão", embaixo o texto "Help Desk · em construção" e uma etiqueta pequena azul com "Módulo 1". Tipografia padrao do Tailwind, sem imagem e sem JavaScript.
+- `base.html`: `<html lang="pt-br">`, `{% load static %}`, link para `css/output.css`, bloco de conteudo.
+- Verifique a pagina de verdade (Chrome, ou Chrome headless sem instalar dependencia) para confirmar que o CSS carrega.
+
+Passo 7 - Testes e ruff
+- `pytest.ini` (ou pyproject) com DJANGO_SETTINGS_MODULE=config.settings.
+- 1 teste: GET `/` devolve 200, usa o template `core/home.html` e contem "Troca do Galão". Nao precisa de prova "falha antes/passa depois" (e teste de pagina, nao de logica).
+- Configuracao do ruff no `pyproject.toml`: regras E, F e I, ignorando as migracoes. Rode `ruff check` e `ruff format --check`; se precisar formatar, formate so os arquivos que voce criou.
+
+Passo 8 - CI (GitHub Actions)
+- `.github/workflows/ci.yml`, rodando em push e em pull_request.
+- Um job so, em Linux, com PostgreSQL como service (imagem oficial), e variaveis de ambiente de teste definidas no proprio workflow (valores nao secretos; nenhum secret do GitHub e necessario).
+- Passos: checkout, setup-python (mesma versao menor do local, com cache do pip), instalar requirements-dev, `ruff check`, `ruff format --check`, `python manage.py check`, `python manage.py makemigrations --check --dry-run`, `pytest`.
+- Use versoes atuais e estaveis das actions (diga quais).
+- Gunicorn nao roda no Windows; so declare-o em requirements.txt. A verificacao dele fica para a parte B.
+
+Passo 9 - README curto
+- So "como rodar localmente": criar o venv, instalar, criar o `.env` a partir do `.env.example`, `migrate`, baixar o Tailwind, os dois terminais (servidor e Tailwind em watch), rodar testes e ruff. Maximo de uma tela. Nao e a documentacao completa do projeto (essa so quando o Mateus pedir).
+
+Passo 10 - Verificacao, push e PR
+- Suite completa UMA vez antes do push. Commits claros em portugues, na branch. Push da branch e UM Pull Request para a main.
+- Confirme que o check do CI passou e que o PR esta limpo. NAO faca o merge. Mostre o link e espere.
+- Pare servidores e apague arquivos temporarios que criou.
+
+FORA DO ESCOPO (nao faca; se achar algo, so reporte)
+- Modelos Rodada, Troca e Ausencia; campo `ordem`; login, logout e telas de usuario; qualquer regra da fila.
+- Deploy, Procfile, healthcheck, configuracoes de producao (CSRF_TRUSTED_ORIGINS, SSL atras de proxy), Railway.
+- Protecao de branch, notificacoes e documentacao completa.
+
+RELATORIO
+Siga o formato do CLAUDE.md. Inclua tambem: versoes escolhidas (Python, Django e demais), se o `gh` estava autenticado, qual banco foi usado na verificacao local (Postgres, Docker ou SQLite temporario) e a confirmacao de que `git ls-files` nao mostra segredos nem dados pessoais.

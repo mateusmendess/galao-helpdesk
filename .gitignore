@@ -1,0 +1,21 @@
+# Ambiente virtual e cache do Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Segredos e banco local
+.env
+db.sqlite3
+db.sqlite3-journal
+
+# Gerados
+staticfiles/
+.pytest_cache/
+.ruff_cache/
+
+# Executavel do Tailwind (baixado, nao versionado)
+tools/
+
+# Editor
+.vscode/
