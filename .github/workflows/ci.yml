@@ -62,3 +62,6 @@ jobs:
 
       - name: Testes
         run: pytest
+
+      - name: Gunicorn carrega o app
+        run: gunicorn config.wsgi --check-config
