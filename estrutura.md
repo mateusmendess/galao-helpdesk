@@ -36,9 +36,10 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 ## 3. Modelos (tabelas)
 
 ### Usuario (usuário próprio do Django)
-- Campos do Django (nome, e-mail, senha, `is_active`, `is_staff`)
-- `ordem`: posição na fila (1 a 7), única
-- `is_staff` = admin do sistema; `is_active` = ainda faz parte do time
+- Login por **e-mail** (único, sempre em minúsculas); não existe nome de usuário
+- Campos do Django (nome, senha, `is_active`, `is_staff`, `is_superuser`)
+- `ordem`: posição na fila (começa em 1), única; pode ficar vazia para quem não está na fila
+- Admin do sistema = `is_staff` e `is_superuser` ligados; membro = os dois desligados; `is_active` = ainda faz parte do time
 
 ### Rodada
 - `aberta_em`, `fechada_em` (vazio = rodada atual)
@@ -90,8 +91,8 @@ Vantagem: se um registro for corrigido, o saldo se acerta sozinho. Não existe n
 
 | # | Módulo | O que entrega |
 |---|---|---|
-| 1 | Base, CI e deploy | **Parte A (local):** projeto Django, `Usuario` próprio ainda vazio (evita uma migração difícil depois), PostgreSQL local, Gunicorn + WhiteNoise, Tailwind CLI, `CLAUDE.md`, ruff + 1 teste e **CI no GitHub Actions (lint + testes)**. **Parte B (quando o Railway voltar):** deploy da página "olá" |
-| 2 | Usuários e login | Campo `ordem` no usuário, login/logout, cadastro só pelo admin, permissão admin × membro, tela inicial protegida |
+| 1 | Base, CI e deploy | **Parte A (local):** projeto Django, `Usuario` próprio ainda vazio (evita uma migração difícil depois), SQLite local, Gunicorn + WhiteNoise, Tailwind CLI, `CLAUDE.md`, ruff + 1 teste e **CI no GitHub Actions (lint + testes)**. **Parte B (quando o Railway voltar):** deploy da página "olá" |
+| 2 | Usuários e login | Login por e-mail (sem nome de usuário), campo `ordem`, login/logout, cadastro só pelo admin, permissão admin × membro, tela inicial protegida, comando que cria a equipe de teste |
 | 3 | Fila e "de quem é a vez" | Rodada, regra da vez, tela com "Vez de: fulano". Testes pesados aqui |
 | 4 | Registrar troca e histórico | Botão "troquei o galão", cobertura, lista de histórico, saldo de dívida |
 | 5 | Ausências | Cadastro de férias/faltas (só admin) e integração com a fila |

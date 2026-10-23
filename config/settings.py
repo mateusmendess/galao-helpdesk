@@ -76,9 +76,13 @@ DATABASES = {
 }
 
 
-# Usuario proprio (vazio por enquanto; campos entram no modulo 2)
+# Usuario proprio: login por e-mail (veja usuarios/models.py)
 
 AUTH_USER_MODEL = "usuarios.Usuario"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
