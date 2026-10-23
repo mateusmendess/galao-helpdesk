@@ -23,6 +23,23 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
+# Origens https aceitas no CSRF (ex.: https://meu-app.up.railway.app).
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Producao atras do proxy HTTPS do Railway. False no computador e no CI:
+# nesse caso nada abaixo e alterado.
+HTTPS_SEGURO = env.bool("HTTPS_SEGURO", default=False)
+if HTTPS_SEGURO:
+    # O proxy termina o HTTPS e avisa pelo cabecalho X-Forwarded-Proto.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    # O healthcheck do Railway chega por http: a rota de saude nao redireciona.
+    SECURE_REDIRECT_EXEMPT = [r"^saude/$"]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # 1 hora de proposito; aumentar so com o site estavel.
+    SECURE_HSTS_SECONDS = 3600
+
 
 # Aplicacoes
 

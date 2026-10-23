@@ -65,3 +65,27 @@ pytest
 ruff check .
 ruff format --check .
 ```
+
+## Produção (Railway)
+
+Build, pré-deploy, start e healthcheck ficam configurados no painel do Railway
+(não há `railway.json` nem `Procfile`):
+
+| Etapa | Valor |
+|---|---|
+| Build | `python manage.py collectstatic --noinput` |
+| Pré-deploy | `python manage.py migrate --noinput` |
+| Start | `gunicorn config.wsgi --bind 0.0.0.0:$PORT` |
+| Healthcheck | `/saude/` (timeout de 300 s) |
+
+O Python vem do `.python-version` (3.13). Variáveis de ambiente (sem valores aqui):
+
+- `SECRET_KEY`: chave longa e aleatória, só de produção
+- `DEBUG=False`
+- `HTTPS_SEGURO=True` (redireciona para https, cookies seguros e HSTS)
+- `ALLOWED_HOSTS`: domínio do site **e** `healthcheck.railway.app`, separados por vírgula
+  (ex.: `meu-app.up.railway.app,healthcheck.railway.app`)
+- `CSRF_TRUSTED_ORIGINS`: endereço com https (ex.: `https://meu-app.up.railway.app`)
+- `DATABASE_URL`: URL do PostgreSQL do Railway
+
+O `criar_equipe_de_teste` não roda em produção (recusa com `DEBUG=False`).
