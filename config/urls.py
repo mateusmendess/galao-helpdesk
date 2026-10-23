@@ -7,6 +7,7 @@ from usuarios.forms import EntrarForm
 
 urlpatterns = [
     path("", core_views.home, name="home"),
+    path("saude/", core_views.saude, name="saude"),
     path(
         "entrar/",
         auth_views.LoginView.as_view(authentication_form=EntrarForm),
