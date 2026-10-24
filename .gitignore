@@ -22,3 +22,7 @@ tools/
 
 # Pedidos do analista (ficam so no computador do Mateus)
 pedidos/
+
+# Arquivos de trabalho do fluxo analista <-> programador (so no computador)
+/task.md
+/RELATORIO.md
