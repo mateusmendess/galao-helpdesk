@@ -58,6 +58,10 @@ python manage.py runserver
 Abra http://127.0.0.1:8000 e entre com o e-mail e a senha. Contas novas de verdade
 são cadastradas só pelo admin, em http://127.0.0.1:8000/admin/.
 
+Limite de tentativas: 5 senhas erradas para o mesmo e-mail em 15 minutos bloqueiam
+esse e-mail automaticamente (em /entrar/ e no /admin/), e o bloqueio acaba sozinho.
+Os valores ficam em `config/settings.py` (`LOGIN_MAX_TENTATIVAS` e `LOGIN_JANELA_MINUTOS`).
+
 ### Testes e ruff
 
 ```powershell

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 
 class UsuarioManager(BaseUserManager):
@@ -61,3 +62,15 @@ class Usuario(AbstractUser):
         if self.email:
             self.email = self.email.lower()
         super().save(*args, **kwargs)
+
+
+class FalhaLogin(models.Model):
+    """Uma senha errada para um e-mail (o e-mail pode nem existir)."""
+
+    # Sem chave estrangeira: conta tambem e-mails que nao sao de ninguem.
+    email = models.CharField("e-mail", max_length=254, db_index=True)
+    criada_em = models.DateTimeField("criada em", default=timezone.now, db_index=True)
+
+    class Meta:
+        verbose_name = "falha de login"
+        verbose_name_plural = "falhas de login"

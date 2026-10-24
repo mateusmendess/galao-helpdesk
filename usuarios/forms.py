@@ -3,7 +3,9 @@ from django.contrib.auth.forms import (
     AuthenticationForm,
     UserChangeForm,
 )
+from django.core.exceptions import ValidationError
 
+from .limite import esta_bloqueado
 from .models import Usuario
 
 
@@ -27,4 +29,13 @@ class EntrarForm(AuthenticationForm):
     error_messages = {
         **AuthenticationForm.error_messages,
         "invalid_login": "E-mail ou senha incorretos.",
+        "bloqueado": "Muitas tentativas de entrada. Tente de novo em alguns minutos.",
     }
+
+    def clean(self):
+        # Checa o bloqueio antes de conferir a senha: com o e-mail bloqueado,
+        # nem a senha certa entra, e a tentativa nao e registrada.
+        email = self.cleaned_data.get("username")
+        if email and esta_bloqueado(email):
+            raise ValidationError(self.error_messages["bloqueado"], code="bloqueado")
+        return super().clean()
