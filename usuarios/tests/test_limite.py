@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from conftest import SENHA_DE_TESTE
-from usuarios.limite import registrar_falha
+from usuarios.limite import esta_bloqueado, registrar_falha
 from usuarios.models import FalhaLogin
 
 pytestmark = pytest.mark.django_db
@@ -131,6 +131,31 @@ def test_login_do_painel_tambem_e_bloqueado(client, admin_usuario):
 
     assert resposta.status_code == 200
     assert not esta_logado(client)
+
+
+def test_tentativas_no_painel_durante_o_bloqueio_nao_sao_registradas(
+    client, admin_usuario
+):
+    # No painel o backend recusa e o Django envia user_login_failed mesmo assim.
+    errar(client, "admin@exemplo.test", 5)
+
+    for _ in range(3):
+        client.post(
+            reverse("admin:login"),
+            {"username": "admin@exemplo.test", "password": SENHA_DE_TESTE},
+        )
+
+    assert FalhaLogin.objects.count() == 5
+
+
+def test_funcoes_normalizam_maiusculas_e_espacos():
+    for _ in range(5):
+        registrar_falha("  Pessoa6@Exemplo.TEST ")
+
+    assert set(FalhaLogin.objects.values_list("email", flat=True)) == {
+        "pessoa6@exemplo.test"
+    }
+    assert esta_bloqueado(" PESSOA6@exemplo.test  ")
 
 
 def test_login_do_painel_registra_falhas_e_entra_sem_bloqueio(client, admin_usuario):
