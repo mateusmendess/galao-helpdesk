@@ -83,7 +83,12 @@ def test_confirmacao_diferente_nao_troca(client, membro):
 
     resposta = trocar(client, SENHA_DE_TESTE, NOVA_SENHA, "outra-coisa-99")
 
-    assert resposta.context["form"].has_error("new_password2", "password_mismatch")
+    form = resposta.context["form"]
+    assert form.has_error("new_password2", "password_mismatch")
+    assert "new_password1" not in form.errors
+    conteudo = resposta.content.decode()
+    erro = form.errors["new_password2"][0]
+    assert conteudo.index('name="new_password2"') < conteudo.index(erro)
     membro.refresh_from_db()
     assert membro.check_password(SENHA_DE_TESTE)
 
@@ -102,9 +107,14 @@ def test_senha_fraca_nao_troca_e_mostra_o_validador(client, membro, fraca, codig
     resposta = trocar(client, SENHA_DE_TESTE, fraca)
 
     form = resposta.context["form"]
-    assert form.has_error("new_password2", codigo)
-    for erro in form.errors["new_password2"]:
-        assert erro in resposta.content.decode()
+    assert form.has_error("new_password1", codigo)
+    assert "new_password2" not in form.errors
+    # O erro aparece sob "Nova senha", antes do campo de confirmacao.
+    conteudo = resposta.content.decode()
+    for erro in form.errors["new_password1"]:
+        posicao = conteudo.index(erro)
+        assert conteudo.index('name="new_password1"') < posicao
+        assert posicao < conteudo.index('name="new_password2"')
     membro.refresh_from_db()
     assert membro.check_password(SENHA_DE_TESTE)
 
@@ -115,6 +125,7 @@ def test_nova_senha_igual_a_atual_nao_troca(client, membro):
     resposta = trocar(client, SENHA_DE_TESTE, SENHA_DE_TESTE)
 
     assert resposta.status_code == 200
+    assert resposta.context["form"].has_error("new_password1", "senha_igual")
     assert MENSAGEM_SENHA_IGUAL in resposta.content.decode()
     membro.refresh_from_db()
     assert membro.check_password(SENHA_DE_TESTE)
@@ -388,3 +399,88 @@ def test_contas_novas_por_padrao_ficam_sem_a_marca(settings):
 
     assert Usuario.objects.count() == 8
     assert not Usuario.objects.filter(precisa_trocar_senha=True).exists()
+
+
+# Admin redefine a senha pelo painel
+
+
+def redefinir_pelo_painel(client, usuario, senha, confirmacao=None):
+    return client.post(
+        reverse("admin:auth_user_password_change", args=[usuario.pk]),
+        {
+            "usable_password": "true",
+            "password1": senha,
+            "password2": senha if confirmacao is None else confirmacao,
+        },
+    )
+
+
+def test_redefinir_senha_de_outra_pessoa_liga_a_marca(client, admin_usuario, membro):
+    assert not membro.precisa_trocar_senha
+    client.force_login(admin_usuario)
+
+    resposta = redefinir_pelo_painel(client, membro, NOVA_SENHA)
+
+    assert resposta.status_code == 302
+    membro.refresh_from_db()
+    assert membro.check_password(NOVA_SENHA)
+    assert membro.precisa_trocar_senha
+
+
+def test_redefinir_a_propria_senha_nao_liga_a_marca(client, admin_usuario):
+    client.force_login(admin_usuario)
+
+    resposta = redefinir_pelo_painel(client, admin_usuario, NOVA_SENHA)
+
+    assert resposta.status_code == 302
+    admin_usuario.refresh_from_db()
+    assert admin_usuario.check_password(NOVA_SENHA)
+    assert not admin_usuario.precisa_trocar_senha
+    assert client.get(reverse("admin:index")).status_code == 200
+
+
+@pytest.mark.parametrize(
+    "senha, confirmacao", [("ab1", None), (NOVA_SENHA, "outra-coisa-99")]
+)
+def test_redefinicao_recusada_nao_liga_a_marca(
+    client, admin_usuario, membro, senha, confirmacao
+):
+    client.force_login(admin_usuario)
+
+    resposta = redefinir_pelo_painel(client, membro, senha, confirmacao)
+
+    assert resposta.status_code == 200
+    membro.refresh_from_db()
+    assert membro.check_password(SENHA_DE_TESTE)
+    assert not membro.precisa_trocar_senha
+
+
+def test_desativar_a_senha_pelo_painel_nao_liga_a_marca(client, admin_usuario, membro):
+    client.force_login(admin_usuario)
+
+    client.post(
+        reverse("admin:auth_user_password_change", args=[membro.pk]),
+        {"usable_password": "false", "unset-password": "1"},
+    )
+
+    membro.refresh_from_db()
+    assert not membro.has_usable_password()
+    assert not membro.precisa_trocar_senha
+
+
+def test_senha_redefinida_obriga_a_troca_no_proximo_acesso(admin_usuario, membro):
+    painel = Client()
+    painel.force_login(admin_usuario)
+    redefinir_pelo_painel(painel, membro, NOVA_SENHA)
+
+    pessoa = Client()
+    entrada = pessoa.post(
+        reverse("login"), {"username": "pessoa1@exemplo.test", "password": NOVA_SENHA}
+    )
+    assert pessoa.get(entrada.url).url == reverse("password_change")
+
+    trocar(pessoa, NOVA_SENHA, "copo-verde-cheio-31")
+
+    membro.refresh_from_db()
+    assert not membro.precisa_trocar_senha
+    assert pessoa.get(reverse("home")).status_code == 200
