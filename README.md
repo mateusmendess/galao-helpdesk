@@ -64,7 +64,7 @@ Os valores ficam em `config/settings.py` (`LOGIN_MAX_TENTATIVAS` e `LOGIN_JANELA
 
 Senhas: cada pessoa troca a própria senha em "Trocar senha", na tela inicial.
 O admin cria a senha provisória no /admin/; usuário novo vem marcado para trocar no primeiro acesso.
-Ao redefinir a senha de alguém, o admin liga de novo a marca "precisa trocar a senha no próximo acesso".
+Ao redefinir a senha de outra pessoa no /admin/, a marca "precisa trocar a senha no próximo acesso" liga sozinha (a pessoa troca no próximo acesso).
 
 ### Testes e ruff
 
