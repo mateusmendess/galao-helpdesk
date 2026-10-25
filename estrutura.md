@@ -24,6 +24,7 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 
 - Fila fixa de 1 a 7. A troca acontece **por evento** (quando o galão acaba), não em dia fixo.
 - **Rodada:** cada pessoa tem uma vez por rodada. Quando todos os **presentes** tiverem trocado, a rodada fecha e outra começa.
+- **Conferência da rodada:** além de quando uma troca é salva, a rodada também é conferida sempre que alguém consulta a rodada atual (ex.: ao abrir a tela inicial); se todos os presentes já trocaram, ela fecha ali e a próxima abre.
 - **Ausência:** quem está ausente é pulado e o próximo presente troca. O ausente não deve nada e não precisa ter trocado para a rodada fechar; ao voltar, volta à fila na posição fixa dele (`ordem`), sem prioridade e sem dívida.
 - **De quem é a vez:** a menor ordem que ainda não trocou na rodada atual, pulando quem estiver ausente.
 - **Cobertura:** se A troca no lugar de B, o histórico registra "A no lugar de B", a vez de B conta como cumprida e B passa a dever 1 troca.

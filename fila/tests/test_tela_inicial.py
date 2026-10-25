@@ -95,21 +95,17 @@ def test_sem_primeiro_nome_aparece_o_email(client, admin_usuario, equipe):
     assert linhas_da_fila(conteudo)[0] == "1 pessoa1@exemplo.test vez agora"
 
 
-def test_ninguem_disponivel_quando_so_restam_ausentes(
-    client, admin_usuario, equipe, registrar, monkeypatch
+def test_ninguem_disponivel_quando_todos_estao_ausentes(
+    client, admin_usuario, equipe, monkeypatch
 ):
-    for pessoa in equipe[:5]:
-        registrar(pessoa)
-    monkeypatch.setattr(regras, "ausentes_hoje", lambda: {equipe[5], equipe[6]})
+    monkeypatch.setattr(regras, "ausentes_hoje", lambda: set(equipe))
 
     conteudo = tela(client, admin_usuario)
 
     assert "Ninguém disponível agora." in conteudo
+    assert "Rodada 1" in conteudo
     assert "Vez de" not in conteudo
-    assert linhas_da_fila(conteudo)[5:] == [
-        "6 Pessoa 6 ausente",
-        "7 Pessoa 7 ausente",
-    ]
+    assert linhas_da_fila(conteudo) == [f"{n} Pessoa {n} ausente" for n in range(1, 8)]
 
 
 def test_tela_mostra_a_rodada_2_depois_de_fechar(
@@ -176,4 +172,12 @@ def test_consultas_nao_crescem_com_o_tamanho_da_fila(
     com_7 = consultas_da_tela(client, admin_usuario)
 
     assert com_2 == com_7
-    assert com_7 <= 5
+    # 2 do login + 6 da fila (com a conferencia da rodada) + 2 savepoints.
+    assert com_7 <= 10
+
+
+def test_subtitulo_e_so_help_desk(client, membro):
+    conteudo = tela(client, membro)
+
+    assert '<p class="mt-2 text-gray-600">Help Desk</p>' in conteudo
+    assert "em construção" not in conteudo
