@@ -4,6 +4,7 @@ from django.urls import path
 
 from core import views as core_views
 from usuarios.forms import EntrarForm
+from usuarios.views import TrocarSenhaView
 
 urlpatterns = [
     path("", core_views.home, name="home"),
@@ -15,5 +16,12 @@ urlpatterns = [
     ),
     # LogoutView so aceita POST (GET devolve 405).
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
+    # So a troca de senha; sem "esqueci a senha" (nada de auth.urls inteiro).
+    path("senha/trocar/", TrocarSenhaView.as_view(), name="password_change"),
+    path(
+        "senha/trocada/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
     path("admin/", admin.site.urls),
 ]
