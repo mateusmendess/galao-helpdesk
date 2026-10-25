@@ -62,6 +62,10 @@ Limite de tentativas: 5 senhas erradas para o mesmo e-mail em 15 minutos bloquei
 esse e-mail automaticamente (em /entrar/ e no /admin/), e o bloqueio acaba sozinho.
 Os valores ficam em `config/settings.py` (`LOGIN_MAX_TENTATIVAS` e `LOGIN_JANELA_MINUTOS`).
 
+Senhas: cada pessoa troca a própria senha em "Trocar senha", na tela inicial.
+O admin cria a senha provisória no /admin/; usuário novo vem marcado para trocar no primeiro acesso.
+Ao redefinir a senha de alguém, o admin liga de novo a marca "precisa trocar a senha no próximo acesso".
+
 ### Testes e ruff
 
 ```powershell
