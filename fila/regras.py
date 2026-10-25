@@ -26,7 +26,7 @@ def nome_de_exibicao(usuario):
     return usuario.first_name or usuario.email
 
 
-def rodada_atual():
+def _rodada_aberta():
     """A rodada aberta; se nao houver, abre a proxima (1 na primeira vez)."""
     rodada = Rodada.objects.filter(fechada_em__isnull=True).first()
     if rodada is not None:
@@ -39,6 +39,19 @@ def rodada_atual():
         # Outra requisicao abriu ao mesmo tempo: o banco recusou a segunda
         # rodada aberta, entao usamos a dela.
         return Rodada.objects.get(fechada_em__isnull=True)
+
+
+def rodada_atual(ausentes=None):
+    """A rodada aberta, ja conferida: se ela esta completa, fecha e devolve a nova.
+
+    Cobre a rodada que completou sem uma troca nova (ex.: o ultimo que faltava
+    foi desativado). Uma rodada recem-aberta nunca esta completa, entao isso
+    fecha no maximo uma vez por chamada.
+    """
+    rodada = _rodada_aberta()
+    if fechar_rodada_se_completa(rodada, ausentes):
+        return _rodada_aberta()
+    return rodada
 
 
 def usuarios_da_fila():
@@ -57,10 +70,10 @@ def ausentes_hoje():
 
 def situacao_da_fila(rodada=None, ausentes=None):
     """Cada pessoa da fila, na ordem, com o estado dela na rodada."""
-    if rodada is None:
-        rodada = rodada_atual()
     if ausentes is None:
         ausentes = ausentes_hoje()
+    if rodada is None:
+        rodada = rodada_atual(ausentes)
     trocaram = set(
         Troca.objects.filter(rodada=rodada).values_list("titular_id", flat=True)
     )
