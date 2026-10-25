@@ -175,11 +175,12 @@ def test_ausente_que_volta_retoma_o_lugar_na_ordem(equipe, registrar):
     assert estados()[:3] == [(1, TROCOU), (2, VEZ), (3, AGUARDANDO)]
 
 
-def test_ninguem_disponivel_quando_so_restam_ausentes(equipe, registrar):
-    for pessoa in equipe[:5]:
-        registrar(pessoa)
+def test_ninguem_disponivel_quando_todos_estao_ausentes(equipe):
+    # Sem presentes a rodada nao pode fechar, entao nao ha vez.
+    ausentes = set(equipe)
 
-    assert de_quem_e_a_vez(ausentes={equipe[5], equipe[6]}) is None
+    assert de_quem_e_a_vez(ausentes=ausentes) is None
+    assert rodada_atual(ausentes=ausentes).numero == 1
 
 
 # 7. Fechamento

@@ -46,3 +46,13 @@ def test_admin_cria_usuario_pelo_painel_com_email(client, admin_usuario):
     assert novo.ordem == 7
     assert novo.check_password(SENHA_DE_TESTE)
     assert not novo.is_staff
+
+
+@pytest.mark.parametrize("metodo", ["get", "post"])
+def test_redefinir_senha_de_usuario_inexistente_da_404(client, admin_usuario, metodo):
+    client.force_login(admin_usuario)
+    url = reverse("admin:auth_user_password_change", args=["999999"])
+
+    resposta = getattr(client, metodo)(url)
+
+    assert resposta.status_code == 404
