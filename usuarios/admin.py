@@ -18,7 +18,7 @@ class UsuarioAdmin(UserAdmin):
     ordering = (F("ordem").asc(nulls_last=True), "email")
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("email", "password", "precisa_trocar_senha")}),
         ("Dados pessoais", {"fields": ("first_name", "last_name", "ordem")}),
         (
             "Permissões",
@@ -46,6 +46,7 @@ class UsuarioAdmin(UserAdmin):
                     "usable_password",
                     "password1",
                     "password2",
+                    "precisa_trocar_senha",
                 ),
             },
         ),

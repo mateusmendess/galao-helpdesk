@@ -47,6 +47,11 @@ class Usuario(AbstractUser):
         blank=True,
         validators=[MinValueValidator(1)],
     )
+    # Ligada pelo admin ao criar a conta com senha provisoria; so a tela
+    # "Trocar senha" desliga.
+    precisa_trocar_senha = models.BooleanField(
+        "precisa trocar a senha no próximo acesso", default=False
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
