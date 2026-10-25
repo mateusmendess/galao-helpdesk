@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import F
 
@@ -51,6 +52,19 @@ class UsuarioAdmin(UserAdmin):
             },
         ),
     )
+
+    def user_change_password(self, request, id, form_url=""):
+        # Usa a tela "alterar senha" do Django como esta e, se a senha de OUTRA
+        # pessoa mudou de fato, liga a troca obrigatoria no proximo acesso.
+        # A propria senha nao liga (o admin se trancaria fora do painel).
+        antes = self.get_object(request, unquote(id))
+        resposta = super().user_change_password(request, id, form_url)
+        if request.method == "POST" and antes.pk != request.user.pk:
+            depois = self.get_object(request, unquote(id))
+            if depois.password != antes.password and depois.has_usable_password():
+                depois.precisa_trocar_senha = True
+                depois.save(update_fields=["precisa_trocar_senha"])
+        return resposta
 
     @admin.display(boolean=True, description="admin")
     def eh_admin(self, obj):

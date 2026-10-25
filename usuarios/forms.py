@@ -65,3 +65,8 @@ class TrocarSenhaForm(PasswordChangeForm):
                 self.error_messages["senha_igual"], code="senha_igual"
             )
         return nova
+
+    def validate_password_for_user(self, user, password_field_name="new_password2"):
+        # O Django valida (e mostra o erro) na confirmacao; aqui o erro de
+        # senha fraca vai para o campo "Nova senha". A regra e a mesma.
+        super().validate_password_for_user(user, "new_password1")
