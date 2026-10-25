@@ -14,6 +14,10 @@
       </p>
     {% endif %}
 
+    <p class="mt-6">
+      <a href="{% url 'password_change' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Trocar senha &rsaquo;</a>
+    </p>
+
     <form method="post" action="{% url 'logout' %}" class="mt-6">
       {% csrf_token %}
       <button type="submit"
