@@ -66,6 +66,10 @@ Senhas: cada pessoa troca a própria senha em "Trocar senha", na tela inicial.
 O admin cria a senha provisória no /admin/; usuário novo vem marcado para trocar no primeiro acesso.
 Ao redefinir a senha de outra pessoa no /admin/, a marca "precisa trocar a senha no próximo acesso" liga sozinha (a pessoa troca no próximo acesso).
 
+Fila: a tela inicial mostra a rodada, de quem é a vez e a fila de 1 a 7.
+A `ordem` de cada usuário (no /admin/) define a posição na fila; quem não tem ordem fica fora.
+Até o botão "troquei o galão" chegar, o admin cadastra as trocas em /admin/ (Fila › Trocas).
+
 ### Testes e ruff
 
 ```powershell

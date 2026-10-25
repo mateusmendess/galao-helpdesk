@@ -23,7 +23,8 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 ## 2. Regras de negócio
 
 - Fila fixa de 1 a 7. A troca acontece **por evento** (quando o galão acaba), não em dia fixo.
-- **Rodada:** cada pessoa tem uma vez por rodada. Quando todos tiverem trocado, a rodada fecha e outra começa.
+- **Rodada:** cada pessoa tem uma vez por rodada. Quando todos os **presentes** tiverem trocado, a rodada fecha e outra começa.
+- **Ausência:** quem está ausente é pulado e o próximo presente troca. O ausente não deve nada e não precisa ter trocado para a rodada fechar; ao voltar, volta à fila na posição fixa dele (`ordem`), sem prioridade e sem dívida.
 - **De quem é a vez:** a menor ordem que ainda não trocou na rodada atual, pulando quem estiver ausente.
 - **Cobertura:** se A troca no lugar de B, o histórico registra "A no lugar de B", a vez de B conta como cumprida e B passa a dever 1 troca.
 - **Dívida ("devendo"):** não é digitada; é calculada a partir do histórico (ver seção 4).
@@ -42,7 +43,7 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 - Admin do sistema = `is_staff` e `is_superuser` ligados; membro = os dois desligados; `is_active` = ainda faz parte do time
 
 ### Rodada
-- `aberta_em`, `fechada_em` (vazio = rodada atual)
+- `numero` (1, 2, 3...; único), `aberta_em`, `fechada_em` (vazio = rodada atual)
 - Só pode existir uma rodada aberta por vez
 
 ### Troca
@@ -80,10 +81,9 @@ Vantagem: se um registro for corrigido, o saldo se acerta sozinho. Não existe n
 
 1. Pega a rodada aberta (se não houver, abre a primeira).
 2. Candidatos = usuários ativos, com ordem, sem troca nesta rodada, em ordem crescente.
-3. Remove quem está ausente na data de hoje.
-4. O primeiro que sobrar é a vez.
-5. Quando todos os ativos tiverem troca, a rodada fecha e outra abre.
-6. Quem ficou de fora por ausência **mantém a vez** na rodada seguinte (detalhe fechado no módulo 3, com testes).
+3. Remove quem está ausente na data de hoje (é pulado e não deve nada).
+4. O primeiro que sobrar é a vez; se não sobrar ninguém, não há vez.
+5. Quando todos os presentes (ativos com ordem, menos os ausentes) tiverem troca, a rodada fecha e outra abre. Quem estava ausente volta na posição fixa dele, sem prioridade.
 
 ---
 
@@ -117,5 +117,5 @@ Antes de cada tela nova, mostro uma prévia visual para você aprovar.
 ## 8. Pontos a confirmar
 
 - **Dívida ("devendo"):** a leitura da planilha atual (um colega com 1 troca devida e uma troca fora da ordem) foi entendida como cobertura. Vale confirmar com o time.
-- **Ausência mantém a vez:** é a sugestão adotada, mas ainda não foi confirmada explicitamente. Fecha no módulo 3.
+- **Ausência:** decidida em 25/10/2026: o ausente é pulado, não deve nada e volta na posição fixa (ver seção 2).
 - **Privacidade:** como o repositório é público, nomes reais do time não entram no repositório (código, testes, docs). Os dados reais ficam só no banco de produção.
