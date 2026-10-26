@@ -181,5 +181,6 @@ def test_consultas_nao_crescem_com_o_tamanho_da_fila(
 def test_subtitulo_e_so_help_desk(client, membro):
     conteudo = tela(client, membro)
 
-    assert '<p class="mt-2 text-gray-600">Help Desk</p>' in conteudo
+    # Desde a reforma visual o "Help Desk" fica no cabecalho: confere o texto.
+    assert re.search(r">\s*Help Desk\s*<", conteudo)
     assert "em construção" not in conteudo
