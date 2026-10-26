@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from django.db.models import Count, F, Max
+from django.db.models import Count, F, Max, Q
 from django.utils import timezone
 
 from .models import Rodada, Troca
@@ -29,6 +29,19 @@ class VezMudou(Exception):
     def __init__(self, vez):
         super().__init__("A vez mudou.")
         self.vez = vez  # quem e a vez agora (None se ninguem)
+
+
+MOTIVO_NAO_APAGA = (
+    "Só dá para apagar a troca da rodada atual, ou a da última rodada fechada "
+    "se a rodada atual ainda estiver vazia."
+)
+
+
+class TrocaNaoPodeSerApagada(Exception):
+    """A troca nao esta na rodada atual nem e a da ultima rodada fechada."""
+
+    def __init__(self):
+        super().__init__(MOTIVO_NAO_APAGA)
 
 
 def nome_de_exibicao(usuario):
@@ -184,3 +197,50 @@ def registrar_troca(titular_esperado, executor, registrada_por, observacao=""):
         # Dois registros ao mesmo tempo para a mesma vez: o banco recusou o
         # segundo (um titular por rodada).
         raise VezMudou(de_quem_e_a_vez()) from erro
+
+
+def pode_apagar_troca(troca):
+    """True se a troca e da rodada aberta (a), ou da ultima rodada fechada
+    com a rodada aberta ainda vazia (b). Nao escreve no banco."""
+    aberta = Rodada.objects.filter(fechada_em__isnull=True).first()
+    if aberta is None:
+        return False
+    if troca.rodada_id == aberta.pk:
+        return True
+    ultima_fechada = (
+        Rodada.objects.filter(fechada_em__isnull=False).order_by("-numero").first()
+    )
+    return (
+        ultima_fechada is not None
+        and troca.rodada_id == ultima_fechada.pk
+        and not aberta.trocas.exists()
+    )
+
+
+def apagar_troca(troca):
+    """Apaga a troca se a regra ainda vale agora; devolve a rodada reaberta.
+
+    Caso (b), nesta ordem: apaga a rodada aberta vazia, reabre a rodada da
+    troca e apaga a troca. A rodada vazia sai primeiro porque o banco nao
+    aceita duas rodadas abertas ao mesmo tempo. Se a regra nao vale, levanta
+    TrocaNaoPodeSerApagada e nada muda.
+    """
+    with transaction.atomic():
+        # Trava as rodadas envolvidas (efetivo no PostgreSQL) e confere de novo.
+        list(
+            Rodada.objects.select_for_update().filter(
+                Q(fechada_em__isnull=True) | Q(pk=troca.rodada_id)
+            )
+        )
+        troca = Troca.objects.filter(pk=troca.pk).select_related("rodada").first()
+        if troca is None or not pode_apagar_troca(troca):
+            raise TrocaNaoPodeSerApagada()
+        rodada = troca.rodada
+        reaberta = None
+        if rodada.fechada_em is not None:
+            Rodada.objects.filter(fechada_em__isnull=True).delete()
+            rodada.fechada_em = None
+            rodada.save(update_fields=["fechada_em"])
+            reaberta = rodada
+        troca.delete()
+        return reaberta
