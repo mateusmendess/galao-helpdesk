@@ -68,7 +68,9 @@ Ao redefinir a senha de outra pessoa no /admin/, a marca "precisa trocar a senha
 
 Fila: a tela inicial mostra a rodada, de quem é a vez e a fila de 1 a 7.
 A `ordem` de cada usuário (no /admin/) define a posição na fila; quem não tem ordem fica fora.
-Até o botão "troquei o galão" chegar, o admin cadastra as trocas em /admin/ (Fila › Trocas).
+Qualquer pessoa logada registra a troca pelo botão "Troquei o galão" na tela inicial (inclusive cobertura).
+O histórico completo fica em "Ver histórico" (/trocas/); a marca "devendo N" vem desse histórico.
+O admin ainda pode lançar trocas em /admin/ (Fila › Trocas).
 
 ### Testes e ruff
 

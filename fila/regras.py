@@ -1,10 +1,12 @@
 """Regras da fila: rodada atual, de quem e a vez e fechamento da rodada."""
 
+from collections import Counter
 from dataclasses import dataclass
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from django.db.models import Max
+from django.db.models import Count, F, Max
 from django.utils import timezone
 
 from .models import Rodada, Troca
@@ -19,6 +21,14 @@ AUSENTE = "ausente"
 class Posicao:
     usuario: object
     estado: str
+
+
+class VezMudou(Exception):
+    """A vez calculada agora nao e a que a pessoa viu na tela."""
+
+    def __init__(self, vez):
+        super().__init__("A vez mudou.")
+        self.vez = vez  # quem e a vez agora (None se ninguem)
 
 
 def nome_de_exibicao(usuario):
@@ -124,3 +134,53 @@ def fechar_rodada_se_completa(rodada, ausentes=None):
         rodada.save(update_fields=["fechada_em"])
         Rodada.objects.create(numero=rodada.numero + 1)
         return True
+
+
+def saldos_devendo():
+    """{usuario_id: N} de quem deve trocas (N > 0), pelo historico inteiro.
+
+    N = (vezes coberto por outra pessoa) - (vezes que cobriu outra pessoa).
+    Duas consultas agregadas, qualquer que seja o tamanho da equipe.
+    """
+    coberturas = Troca.objects.exclude(executor=F("titular")).order_by()
+    saldo = Counter()
+    for linha in coberturas.values("titular").annotate(n=Count("id")):
+        saldo[linha["titular"]] += linha["n"]
+    for linha in coberturas.values("executor").annotate(n=Count("id")):
+        saldo[linha["executor"]] -= linha["n"]
+    return {usuario_id: n for usuario_id, n in saldo.items() if n > 0}
+
+
+def registrar_troca(titular_esperado, executor, registrada_por, observacao=""):
+    """Grava a troca da vez ATUAL, se ela ainda e de titular_esperado.
+
+    titular_esperado e so quem a pessoa viu na tela; a vez de verdade e
+    calculada aqui. Se nao bate (ou se outra troca entrou antes), levanta
+    VezMudou e nada e gravado.
+    """
+    try:
+        with transaction.atomic():
+            rodada = rodada_atual()
+            vez = de_quem_e_a_vez(rodada)
+            if vez is None or titular_esperado is None or vez.pk != titular_esperado.pk:
+                raise VezMudou(vez)
+            troca = Troca(
+                rodada=rodada,
+                titular=vez,
+                executor=executor,
+                registrada_por=registrada_por,
+                observacao=observacao,
+            )
+            try:
+                troca.full_clean()
+            except ValidationError as erro:
+                # Outra troca da mesma vez entrou entre a leitura e a validacao.
+                if Troca.objects.filter(rodada=rodada, titular=vez).exists():
+                    raise VezMudou(de_quem_e_a_vez()) from erro
+                raise
+            troca.save()
+            return troca
+    except IntegrityError as erro:
+        # Dois registros ao mesmo tempo para a mesma vez: o banco recusou o
+        # segundo (um titular por rodada).
+        raise VezMudou(de_quem_e_a_vez()) from erro

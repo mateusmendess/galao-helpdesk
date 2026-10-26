@@ -64,7 +64,8 @@ def test_estados_aparecem_em_texto_depois_de_trocas(
     linhas = linhas_da_fila(tela(client, admin_usuario))
 
     assert linhas[0] == "1 Pessoa 1 ✓ já trocou"
-    assert linhas[1] == "2 Pessoa 2 ✓ já trocou"
+    # A Pessoa 2 foi coberta pela 7: ja trocou e passa a dever 1.
+    assert linhas[1] == "2 Pessoa 2 devendo 1 ✓ já trocou"
     assert linhas[2] == "3 Pessoa 3 vez agora"
     assert linhas[6] == "7 Pessoa 7 aguardando"
 
@@ -172,8 +173,9 @@ def test_consultas_nao_crescem_com_o_tamanho_da_fila(
     com_7 = consultas_da_tela(client, admin_usuario)
 
     assert com_2 == com_7
-    # 2 do login + 6 da fila (com a conferencia da rodada) + 2 savepoints.
-    assert com_7 <= 10
+    # 2 do login + 6 da fila (com a conferencia da rodada) + 2 savepoints
+    # + 2 do saldo "devendo" + 1 da ultima troca.
+    assert com_7 <= 13
 
 
 def test_subtitulo_e_so_help_desk(client, membro):

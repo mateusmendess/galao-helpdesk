@@ -30,7 +30,9 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 - **Cobertura:** se A troca no lugar de B, o histórico registra "A no lugar de B", a vez de B conta como cumprida e B passa a dever 1 troca.
 - **Dívida ("devendo"):** não é digitada; é calculada a partir do histórico (ver seção 4).
 - **Histórico completo:** cada troca vira um registro. Nada se perde quando a rodada vira.
-- **Acesso:** login individual. Admins: o Mateus e mais uma pessoa do time. Só admins cadastram pessoas, registram ausências e corrigem registros. Os demais consultam e marcam a própria troca.
+- **Acesso:** login individual. Admins: o Mateus e mais uma pessoa do time. Só admins cadastram pessoas, registram ausências e corrigem registros. Os demais consultam e registram trocas pelo botão, inclusive cobertura.
+- **Botão "Troquei o galão":** aparece na tela inicial quando há vez. No formulário "Registrar troca", o titular é sempre a pessoa da vez (calculada no servidor na hora de gravar); quem registra diz se foi a própria pessoa ou outra. Se a vez mudou enquanto a pessoa preenchia, nada é gravado.
+- **Última troca e histórico:** a tela inicial mostra a última troca e a marca "devendo N" ao lado do nome; a tela "Histórico de trocas" lista tudo, da mais recente para a mais antiga, 30 por página.
 - **Sem notificação** por enquanto.
 
 ---
@@ -73,6 +75,7 @@ saldo(X) = (vezes em que X foi coberto por outro)
 - Saldo positivo: X deve trocas.
 - Saldo negativo: X tem trocas a receber.
 - Quando X cobre a vez de quem o cobriu antes, as duas pontas se anulam.
+- Conta o histórico inteiro, não só a rodada. A tela mostra só "devendo N" (N > 0); crédito não aparece.
 
 Vantagem: se um registro for corrigido, o saldo se acerta sozinho. Não existe número digitado à mão para ficar errado.
 

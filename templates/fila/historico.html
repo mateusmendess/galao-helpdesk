@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de trocas - Troca do Galão{% endblock %}
+
+{% block content %}
+<main class="flex min-h-screen items-center justify-center p-4">
+  <section class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
+    <h1 class="text-center text-3xl font-bold">Histórico de trocas</h1>
+
+    {% if pagina.object_list %}
+      <ol class="mt-6 divide-y divide-gray-200">
+        {% for troca in pagina %}
+          <li class="py-3">
+            <p class="font-medium">
+              {% if troca.executor_id == troca.titular_id %}
+                {{ troca.executor.first_name|default:troca.executor.email }} trocou
+              {% else %}
+                {{ troca.executor.first_name|default:troca.executor.email }} trocou no lugar de {{ troca.titular.first_name|default:troca.titular.email }}
+                <span class="ml-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">cobertura</span>
+              {% endif %}
+            </p>
+            <p class="mt-1 text-sm text-gray-600">{{ troca.data_hora|date:"d/m" }} às {{ troca.data_hora|date:"H:i" }} · Rodada {{ troca.rodada.numero }} · registrada por {{ troca.registrada_por.first_name|default:troca.registrada_por.email }}</p>
+            {% if troca.observacao %}<p class="mt-1 text-sm text-gray-700">“{{ troca.observacao }}”</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="mt-6 text-center text-gray-700">Nenhuma troca registrada ainda.</p>
+    {% endif %}
+
+    {% if pagina.has_previous or pagina.has_next %}
+      <p class="mt-6 flex justify-between gap-4">
+        {% if pagina.has_previous %}
+          <a href="?pagina={{ pagina.previous_page_number }}" class="font-medium text-blue-700 underline-offset-2 hover:underline">&lsaquo; Mais recentes</a>
+        {% else %}<span></span>{% endif %}
+        {% if pagina.has_next %}
+          <a href="?pagina={{ pagina.next_page_number }}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Mais antigas &rsaquo;</a>
+        {% endif %}
+      </p>
+    {% endif %}
+
+    <p class="mt-6 text-center">
+      <a href="{% url 'home' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">&lsaquo; Voltar</a>
+    </p>
+  </section>
+</main>
+{% endblock %}

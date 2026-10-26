@@ -61,6 +61,11 @@ class TrocaAdmin(admin.ModelAdmin):
         campo = super().formfield_for_foreignkey(db_field, request, **kwargs)
         if db_field.name in ("titular", "executor", "registrada_por"):
             campo.label_from_instance = nome_de_exibicao
+        if db_field.name == "executor":
+            campo.help_text = (
+                "Se foi o próprio titular quem trocou, escolha o mesmo nome do "
+                "titular. Escolha outro nome só quando houve cobertura."
+            )
         return campo
 
     def save_model(self, request, obj, form, change):
