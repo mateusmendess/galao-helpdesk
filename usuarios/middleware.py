@@ -3,7 +3,13 @@ from django.shortcuts import redirect
 # Rotas que quem precisa trocar a senha ainda pode abrir. Compara o nome
 # completo (com namespace): "admin:password_change" NAO entra, porque troca a
 # senha sem desligar a marca.
-ROTAS_LIBERADAS = {"password_change", "password_change_done", "logout", "saude"}
+ROTAS_LIBERADAS = {
+    "password_change",
+    "password_change_done",
+    "logout",
+    "saude",
+    "favicon",
+}
 
 
 class TrocaDeSenhaObrigatoriaMiddleware:
