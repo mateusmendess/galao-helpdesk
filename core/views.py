@@ -5,6 +5,8 @@ from django.views.decorators.http import require_safe
 
 from fila.models import Troca
 from fila.regras import (
+    AUSENTE,
+    TROCOU,
     VEZ,
     ausencias_de_hoje,
     rodada_atual,
@@ -24,6 +26,10 @@ def home(request):
     rodada = rodada_atual(ausentes)
     posicoes = situacao_da_fila(rodada, ausentes)
     vez = next((p.usuario for p in posicoes if p.estado == VEZ), None)
+    # Progresso da rodada (o "nivel do galao"), das posicoes ja carregadas:
+    # presentes = quem nao esta ausente; quem ja trocou conta mesmo se ausente.
+    presentes = sum(1 for p in posicoes if p.estado != AUSENTE)
+    trocaram = sum(1 for p in posicoes if p.estado == TROCOU)
     saldos = saldos_devendo()
     ultima = (
         Troca.objects.select_related("titular", "executor")
@@ -39,6 +45,10 @@ def home(request):
             (p, saldos.get(p.usuario.pk, 0), ausencias.get(p.usuario)) for p in posicoes
         ],
         "vez": vez,
+        "presentes": presentes,
+        "trocaram": trocaram,
+        # Um segmento por presente: True = ja trocou.
+        "segmentos": [True] * trocaram + [False] * (presentes - trocaram),
         "ultima": ultima,
         "ultima_texto": descrever(ultima) if ultima else "",
     }
