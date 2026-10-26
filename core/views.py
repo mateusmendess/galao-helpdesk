@@ -4,7 +4,13 @@ from django.shortcuts import render
 from django.views.decorators.http import require_safe
 
 from fila.models import Troca
-from fila.regras import VEZ, rodada_atual, saldos_devendo, situacao_da_fila
+from fila.regras import (
+    VEZ,
+    ausencias_de_hoje,
+    rodada_atual,
+    saldos_devendo,
+    situacao_da_fila,
+)
 from fila.views import descrever
 
 
@@ -12,8 +18,11 @@ from fila.views import descrever
 @require_safe
 def home(request):
     # Abre a primeira rodada se ainda nao houver (escrita idempotente no GET).
-    rodada = rodada_atual()
-    posicoes = situacao_da_fila(rodada)
+    # Uma consulta de ausencias serve para a vez, o fechamento e o "ate DD/MM".
+    ausencias = ausencias_de_hoje()
+    ausentes = set(ausencias)
+    rodada = rodada_atual(ausentes)
+    posicoes = situacao_da_fila(rodada, ausentes)
     vez = next((p.usuario for p in posicoes if p.estado == VEZ), None)
     saldos = saldos_devendo()
     ultima = (
@@ -24,8 +33,11 @@ def home(request):
     contexto = {
         "rodada": rodada,
         "posicoes": posicoes,
-        # Cada pessoa da fila com quanto deve (0 = nao mostra a marca).
-        "linhas": [(p, saldos.get(p.usuario.pk, 0)) for p in posicoes],
+        # Cada pessoa da fila com quanto deve (0 = nao mostra a marca) e, se
+        # ausente, ate quando (None = em aberto).
+        "linhas": [
+            (p, saldos.get(p.usuario.pk, 0), ausencias.get(p.usuario)) for p in posicoes
+        ],
         "vez": vez,
         "ultima": ultima,
         "ultima_texto": descrever(ultima) if ultima else "",

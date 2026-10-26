@@ -26,7 +26,7 @@
       {% endif %}
 
       <ol class="mt-6 space-y-1 text-left">
-        {% for posicao, devendo in linhas %}
+        {% for posicao, devendo, ausente_ate in linhas %}
           <li class="flex items-center gap-3 rounded-lg px-3 py-2{% if posicao.estado == 'vez' %} bg-blue-50 font-semibold{% endif %}">
             <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700">{{ posicao.usuario.ordem }}</span>
             <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -34,7 +34,7 @@
               {% if devendo > 0 %}<span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">devendo {{ devendo }}</span>{% endif %}
             </span>
             <span class="shrink-0 text-sm {% if posicao.estado == 'trocou' %}text-green-800{% elif posicao.estado == 'vez' %}text-blue-800{% else %}text-gray-600{% endif %}">
-              {% if posicao.estado == 'trocou' %}✓ já trocou{% elif posicao.estado == 'vez' %}vez agora{% elif posicao.estado == 'ausente' %}ausente{% else %}aguardando{% endif %}
+              {% if posicao.estado == 'trocou' %}✓ já trocou{% elif posicao.estado == 'vez' %}vez agora{% elif posicao.estado == 'ausente' %}ausente{% if ausente_ate %} até {{ ausente_ate|date:"d/m" }}{% endif %}{% else %}aguardando{% endif %}
             </span>
           </li>
         {% endfor %}
