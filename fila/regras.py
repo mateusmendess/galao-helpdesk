@@ -9,7 +9,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Count, F, Max, Q
 from django.utils import timezone
 
-from .models import Rodada, Troca
+from .models import Ausencia, Rodada, Troca
 
 TROCOU = "trocou"
 VEZ = "vez"
@@ -86,9 +86,24 @@ def usuarios_da_fila():
     )
 
 
-def ausentes_hoje():
-    """Quem esta ausente hoje. Vazio por enquanto: o modulo 5 implementa."""
-    return set()
+def ausencias_de_hoje(hoje=None):
+    """{usuario: fim ou None} de quem esta ausente hoje (data local). 1 consulta.
+
+    O periodo vale do inicio ao fim, inclusive; fim vazio = em aberto.
+    """
+    if hoje is None:
+        hoje = timezone.localdate()
+    ausencias = (
+        Ausencia.objects.filter(inicio__lte=hoje)
+        .filter(Q(fim__isnull=True) | Q(fim__gte=hoje))
+        .select_related("usuario")
+    )
+    return {ausencia.usuario: ausencia.fim for ausencia in ausencias}
+
+
+def ausentes_hoje(hoje=None):
+    """Conjunto dos usuarios ausentes hoje (data local)."""
+    return set(ausencias_de_hoje(hoje))
 
 
 def situacao_da_fila(rodada=None, ausentes=None):
