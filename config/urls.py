@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.templatetags.static import static
 from django.urls import path
+from django.views.generic import RedirectView
 
 from core import views as core_views
 from fila import views as fila_views
@@ -10,6 +12,12 @@ from usuarios.views import TrocarSenhaView
 urlpatterns = [
     path("", core_views.home, name="home"),
     path("saude/", core_views.saude, name="saude"),
+    # Navegadores pedem /favicon.ico sozinhos, mesmo sem login.
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url=static("img/favicon.ico"), permanent=True),
+        name="favicon",
+    ),
     path("trocas/", fila_views.historico, name="historico"),
     path("trocas/nova/", fila_views.registrar, name="registrar_troca"),
     path(
