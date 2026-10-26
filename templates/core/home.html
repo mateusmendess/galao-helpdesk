@@ -26,10 +26,13 @@
       {% endif %}
 
       <ol class="mt-6 space-y-1 text-left">
-        {% for posicao in posicoes %}
+        {% for posicao, devendo in linhas %}
           <li class="flex items-center gap-3 rounded-lg px-3 py-2{% if posicao.estado == 'vez' %} bg-blue-50 font-semibold{% endif %}">
             <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700">{{ posicao.usuario.ordem }}</span>
-            <span class="min-w-0 flex-1 truncate">{{ posicao.usuario.first_name|default:posicao.usuario.email }}{% if posicao.usuario.pk == user.pk %} (você){% endif %}</span>
+            <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span class="max-w-full truncate">{{ posicao.usuario.first_name|default:posicao.usuario.email }}{% if posicao.usuario.pk == user.pk %} (você){% endif %}</span>
+              {% if devendo > 0 %}<span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">devendo {{ devendo }}</span>{% endif %}
+            </span>
             <span class="shrink-0 text-sm {% if posicao.estado == 'trocou' %}text-green-800{% elif posicao.estado == 'vez' %}text-blue-800{% else %}text-gray-600{% endif %}">
               {% if posicao.estado == 'trocou' %}✓ já trocou{% elif posicao.estado == 'vez' %}vez agora{% elif posicao.estado == 'ausente' %}ausente{% else %}aguardando{% endif %}
             </span>
@@ -37,6 +40,19 @@
         {% endfor %}
       </ol>
     {% endif %}
+
+    {% if vez %}
+      <a href="{% url 'registrar_troca' %}"
+         class="mt-6 block w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">Troquei o galão</a>
+    {% endif %}
+
+    {% if ultima %}
+      <p class="mt-6 border-t border-gray-200 pt-4 text-sm text-gray-600">Última troca: {{ ultima_texto }} · {{ ultima.data_hora|date:"d/m" }} às {{ ultima.data_hora|date:"H:i" }}</p>
+    {% endif %}
+
+    <p class="mt-6">
+      <a href="{% url 'historico' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Ver histórico &rsaquo;</a>
+    </p>
 
     {% if user.is_staff and user.is_superuser %}
       <p class="mt-6">

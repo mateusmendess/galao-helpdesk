@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar troca - Troca do Galão{% endblock %}
+
+{% block content %}
+<main class="flex min-h-screen items-center justify-center p-4">
+  <section class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
+    <h1 class="text-center text-3xl font-bold">Registrar troca</h1>
+
+    {% if form.non_field_errors %}
+      <div class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+        {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" class="mt-6 space-y-5">
+      {% csrf_token %}
+      <input type="hidden" name="{{ form.titular.html_name }}" value="{{ vez.pk }}">
+
+      <div>
+        <p class="text-sm font-medium text-gray-700">De quem era a vez</p>
+        <p class="mt-1 text-xl font-bold">{{ vez.first_name|default:vez.email }}</p>
+      </div>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700">{{ form.quem.label }}</legend>
+        {% with marcado=form.quem.value|default:"eu" %}
+          <div class="mt-2 space-y-2">
+            <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
+              <input type="radio" name="{{ form.quem.html_name }}" value="eu" {% if marcado == "eu" %}checked{% endif %}>
+              <span>Fui eu ({{ user.first_name|default:user.email }})</span>
+            </label>
+            <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
+              <input type="radio" name="{{ form.quem.html_name }}" value="outra" {% if marcado == "outra" %}checked{% endif %}>
+              <span>Foi outra pessoa</span>
+            </label>
+          </div>
+        {% endwith %}
+        {% for erro in form.quem.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+      </fieldset>
+
+      {# Visivel no HTML; o script abaixo esconde quando "Fui eu" esta marcado. #}
+      <div id="bloco-outra-pessoa" class="space-y-3">
+        <div>
+          <label for="{{ form.executor.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.executor.label }}</label>
+          {{ form.executor }}
+          {% for erro in form.executor.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+        </div>
+        <p class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Se quem trocou não for {{ vez.first_name|default:vez.email }}, a vez de {{ vez.first_name|default:vez.email }} conta como cumprida e essa pessoa passa a dever 1 troca. Quem trocou no lugar dela abate 1 da própria dívida, se tiver.</p>
+      </div>
+
+      <div>
+        <label for="{{ form.observacao.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.observacao.label }}</label>
+        {{ form.observacao }}
+        {% for erro in form.observacao.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+      </div>
+
+      <button type="submit"
+              class="w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
+        Registrar troca
+      </button>
+    </form>
+
+    <p class="mt-6 text-center">
+      <a href="{% url 'home' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Cancelar</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  // Melhoria progressiva: sem este script, a lista e o aviso ficam visiveis.
+  (function () {
+    var bloco = document.getElementById("bloco-outra-pessoa");
+    var opcoes = document.querySelectorAll('input[name="quem"]');
+    function atualizar() {
+      var marcada = document.querySelector('input[name="quem"]:checked');
+      bloco.hidden = !marcada || marcada.value !== "outra";
+    }
+    opcoes.forEach(function (opcao) { opcao.addEventListener("change", atualizar); });
+    window.addEventListener("pageshow", atualizar);
+    atualizar();
+  })();
+</script>
+{% endblock %}

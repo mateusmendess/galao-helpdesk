@@ -3,12 +3,15 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from core import views as core_views
+from fila import views as fila_views
 from usuarios.forms import EntrarForm
 from usuarios.views import TrocarSenhaView
 
 urlpatterns = [
     path("", core_views.home, name="home"),
     path("saude/", core_views.saude, name="saude"),
+    path("trocas/", fila_views.historico, name="historico"),
+    path("trocas/nova/", fila_views.registrar, name="registrar_troca"),
     path(
         "entrar/",
         auth_views.LoginView.as_view(authentication_form=EntrarForm),
