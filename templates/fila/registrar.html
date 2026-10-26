@@ -2,69 +2,74 @@
 
 {% block title %}Registrar troca - Troca do Galão{% endblock %}
 
+{% block cabecalho %}{% include "_cabecalho.html" with marca_p=True %}{% endblock %}
+
 {% block content %}
-<main class="flex min-h-screen items-center justify-center p-4">
-  <section class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
-    <h1 class="text-center text-3xl font-bold">Registrar troca</h1>
+<main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-xl">
+  <h1 class="text-2xl font-extrabold">Registrar troca</h1>
 
-    {% if form.non_field_errors %}
-      <div class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
-        {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
-      </div>
-    {% endif %}
+  {% if form.non_field_errors %}
+    <div class="mt-3 flex items-start gap-2 rounded-[10px] border border-erro bg-erro-fundo px-3 py-2.5 text-sm text-erro" role="alert">
+      <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v6M12 16.5v.1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <div class="min-w-0">{% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}</div>
+    </div>
+  {% endif %}
 
-    <form method="post" class="mt-6 space-y-5">
-      {% csrf_token %}
-      <input type="hidden" name="{{ form.titular.html_name }}" value="{{ vez.pk }}">
+  <form method="post" class="mt-4 space-y-5">
+    {% csrf_token %}
+    <input type="hidden" name="{{ form.titular.html_name }}" value="{{ vez.pk }}">
 
-      <div>
-        <p class="text-sm font-medium text-gray-700">De quem era a vez</p>
-        <p class="mt-1 text-xl font-bold wrap-anywhere">{{ vez.first_name|default:vez.email }}</p>
-      </div>
+    <div class="rounded-xl border border-[#bfe0ea] bg-agua px-3.5 py-3">
+      <p class="text-[13px] font-semibold text-tinta">De quem era a vez</p>
+      <p class="text-[28px] leading-tight font-extrabold text-tinta wrap-anywhere">{{ vez.first_name|default:vez.email }}</p>
+    </div>
 
-      <fieldset>
-        <legend class="text-sm font-medium text-gray-700">{{ form.quem.label }}</legend>
-        {% with marcado=form.quem.value|default:"eu" %}
-          <div class="mt-2 space-y-2">
-            <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
-              <input type="radio" name="{{ form.quem.html_name }}" value="eu" {% if marcado == "eu" %}checked{% endif %}>
-              <span class="min-w-0 wrap-anywhere">Fui eu ({{ user.first_name|default:user.email }})</span>
-            </label>
-            <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
-              <input type="radio" name="{{ form.quem.html_name }}" value="outra" {% if marcado == "outra" %}checked{% endif %}>
-              <span>Foi outra pessoa</span>
-            </label>
-          </div>
-        {% endwith %}
-        {% for erro in form.quem.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
-      </fieldset>
-
-      {# Visivel no HTML; o script abaixo esconde quando "Fui eu" esta marcado. #}
-      <div id="bloco-outra-pessoa" class="space-y-3">
-        <div>
-          <label for="{{ form.executor.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.executor.label }}</label>
-          {{ form.executor }}
-          {% for erro in form.executor.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+    <fieldset>
+      <legend class="text-[15px] font-bold">{{ form.quem.label }}</legend>
+      {% with marcado=form.quem.value|default:"eu" %}
+        <div class="mt-2 space-y-2">
+          {# O cartao inteiro e o alvo; o marcado ganha borda na tinta e fundo agua (sem JS). #}
+          <label class="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[10px] border border-borda bg-white px-3.5 py-2.5 has-[:checked]:border-tinta has-[:checked]:bg-agua has-[:checked]:font-bold has-[:checked]:ring-1 has-[:checked]:ring-tinta">
+            <input type="radio" name="{{ form.quem.html_name }}" value="eu" {% if marcado == "eu" %}checked{% endif %} class="h-5 w-5 shrink-0 accent-tinta">
+            <span class="min-w-0 wrap-anywhere">Fui eu ({{ user.first_name|default:user.email }})</span>
+          </label>
+          <label class="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[10px] border border-borda bg-white px-3.5 py-2.5 has-[:checked]:border-tinta has-[:checked]:bg-agua has-[:checked]:font-bold has-[:checked]:ring-1 has-[:checked]:ring-tinta">
+            <input type="radio" name="{{ form.quem.html_name }}" value="outra" {% if marcado == "outra" %}checked{% endif %} class="h-5 w-5 shrink-0 accent-tinta">
+            <span>Foi outra pessoa</span>
+          </label>
         </div>
-        <p class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 wrap-anywhere">Se quem trocou não for {{ vez.first_name|default:vez.email }}, a vez de {{ vez.first_name|default:vez.email }} conta como cumprida e essa pessoa passa a dever 1 troca. Quem trocou no lugar dela abate 1 da própria dívida, se tiver.</p>
-      </div>
+      {% endwith %}
+      {% for erro in form.quem.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
+    </fieldset>
 
+    {# Visivel no HTML; o script abaixo esconde quando "Fui eu" esta marcado. #}
+    <div id="bloco-outra-pessoa" class="space-y-3">
       <div>
-        <label for="{{ form.observacao.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.observacao.label }}</label>
-        {{ form.observacao }}
-        {% for erro in form.observacao.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+        <label for="{{ form.executor.id_for_label }}" class="block text-[15px] font-semibold">{{ form.executor.label }}</label>
+        {{ form.executor }}
+        {% for erro in form.executor.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
       </div>
+      <div class="flex items-start gap-2 rounded-[10px] border border-[#e3b878] bg-aviso-fundo px-3 py-2.5 text-sm text-aviso">
+        <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <p class="min-w-0 wrap-anywhere">Se quem trocou não for {{ vez.first_name|default:vez.email }}, a vez de {{ vez.first_name|default:vez.email }} conta como cumprida e essa pessoa passa a dever 1 troca. Quem trocou no lugar dela abate 1 da própria dívida, se tiver.</p>
+      </div>
+    </div>
 
+    <div>
+      <label for="{{ form.observacao.id_for_label }}" class="block text-[15px] font-semibold">{{ form.observacao.label }}</label>
+      {{ form.observacao }}
+      {% for erro in form.observacao.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
+    </div>
+
+    <div class="flex gap-2.5">
+      <a href="{% url 'home' %}"
+         class="flex min-h-12 basis-2/5 items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-3 font-semibold text-tinta hover:bg-agua">Cancelar</a>
       <button type="submit"
-              class="w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
+              class="flex min-h-[52px] flex-1 items-center justify-center rounded-[10px] bg-tinta px-4 text-[17px] font-bold text-white hover:bg-[#093f57]">
         Registrar troca
       </button>
-    </form>
-
-    <p class="mt-6 text-center">
-      <a href="{% url 'home' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Cancelar</a>
-    </p>
-  </section>
+    </div>
+  </form>
 </main>
 
 <script>
