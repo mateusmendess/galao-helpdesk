@@ -26,6 +26,7 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 - **Rodada:** cada pessoa tem uma vez por rodada. Quando todos os **presentes** tiverem trocado, a rodada fecha e outra começa.
 - **Conferência da rodada:** além de quando uma troca é salva, a rodada também é conferida sempre que alguém consulta a rodada atual (ex.: ao abrir a tela inicial); se todos os presentes já trocaram, ela fecha ali e a próxima abre.
 - **Ausência:** quem está ausente é pulado e o próximo presente troca. O ausente não deve nada e não precisa ter trocado para a rodada fechar; ao voltar, volta à fila na posição fixa dele (`ordem`), sem prioridade e sem dívida.
+- **Período da ausência:** cadastrado só pelo admin, com início e fim opcional (vazio = em aberto). Vale do início ao fim, inclusive, na data local; a pessoa volta no dia seguinte ao fim. A mesma pessoa não pode ter dois períodos que se sobreponham, e o fim não pode ser antes do início.
 - **De quem é a vez:** a menor ordem que ainda não trocou na rodada atual, pulando quem estiver ausente.
 - **Cobertura:** se A troca no lugar de B, o histórico registra "A no lugar de B", a vez de B conta como cumprida e B passa a dever 1 troca.
 - **Dívida ("devendo"):** não é digitada; é calculada a partir do histórico (ver seção 4).
@@ -59,8 +60,8 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 - Regra: um titular só pode ter **uma** troca por rodada
 
 ### Ausencia
-- `usuario`, `inicio`, `fim`, `motivo` (férias, falta, outro)
-- `criada_por` (um admin)
+- `usuario`, `inicio`, `fim` (vazio = em aberto)
+- O banco recusa fim antes do início; a sobreposição da mesma pessoa é recusada na validação
 
 ---
 
@@ -86,7 +87,7 @@ Vantagem: se um registro for corrigido, o saldo se acerta sozinho. Não existe n
 
 1. Pega a rodada aberta (se não houver, abre a primeira).
 2. Candidatos = usuários ativos, com ordem, sem troca nesta rodada, em ordem crescente.
-3. Remove quem está ausente na data de hoje (é pulado e não deve nada).
+3. Remove quem está ausente na data de hoje (é pulado e não deve nada); a lista vem das ausências cadastradas (`ausentes_hoje`).
 4. O primeiro que sobrar é a vez; se não sobrar ninguém, não há vez.
 5. Quando todos os presentes (ativos com ordem, menos os ausentes) tiverem troca, a rodada fecha e outra abre. Quem estava ausente volta na posição fixa dele, sem prioridade.
 
