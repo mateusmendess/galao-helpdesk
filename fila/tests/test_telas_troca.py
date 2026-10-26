@@ -5,9 +5,9 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 
-from fila import regras
-from fila.models import Rodada, Troca
+from fila.models import Ausencia, Rodada, Troca
 from fila.regras import rodada_atual
 
 pytestmark = pytest.mark.django_db
@@ -58,10 +58,10 @@ def test_botao_aparece_quando_ha_vez(client, equipe):
     assert "Ver histórico" in conteudo
 
 
-def test_botao_some_quando_so_restam_ausentes(
-    client, admin_usuario, equipe, monkeypatch
-):
-    monkeypatch.setattr(regras, "ausentes_hoje", lambda: set(equipe))
+def test_botao_some_quando_so_restam_ausentes(client, admin_usuario, equipe):
+    # Ausencias de verdade, em aberto desde hoje.
+    hoje = timezone.localdate()
+    Ausencia.objects.bulk_create(Ausencia(usuario=u, inicio=hoje) for u in equipe)
     so_ausentes = tela(client, admin_usuario)
 
     assert "Ninguém disponível agora." in so_ausentes
