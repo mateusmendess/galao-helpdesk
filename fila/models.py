@@ -80,6 +80,10 @@ class Troca(models.Model):
         from .regras import rodada_atual
 
         super().clean()
+        if not self._state.adding:
+            # Troca ja gravada: o titular nao muda e nao e revalidado; o
+            # executor e conferido pela lista do formulario do admin.
+            return
         erros = {}
         if self.titular_id:
             titular = self.titular
@@ -103,6 +107,9 @@ class Troca(models.Model):
 
         # Grava a troca e, se ela completou a rodada, fecha e abre a proxima,
         # tudo junto. O fechamento so mexe em Rodada: nao chama Troca.save().
+        # Corrigir uma troca ja gravada nao fecha nem abre rodada.
+        criando = self._state.adding
         with transaction.atomic():
             super().save(*args, **kwargs)
-            fechar_rodada_se_completa(self.rodada)
+            if criando:
+                fechar_rodada_se_completa(self.rodada)

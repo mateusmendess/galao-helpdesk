@@ -32,6 +32,7 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 - **Histórico completo:** cada troca vira um registro. Nada se perde quando a rodada vira.
 - **Acesso:** login individual. Admins: o Mateus e mais uma pessoa do time. Só admins cadastram pessoas, registram ausências e corrigem registros. Os demais consultam e registram trocas pelo botão, inclusive cobertura.
 - **Botão "Troquei o galão":** aparece na tela inicial quando há vez. No formulário "Registrar troca", o titular é sempre a pessoa da vez (calculada no servidor na hora de gravar); quem registra diz se foi a própria pessoa ou outra. Se a vez mudou enquanto a pessoa preenchia, nada é gravado.
+- **Correções pelo admin:** o admin corrige só quem trocou (executor) e a observação; titular, rodada, data e quem registrou não mudam. Apagar só vale para a troca da rodada atual, ou para a da última rodada fechada quando a atual ainda está vazia; nesse caso a rodada vazia é apagada e a anterior é reaberta.
 - **Última troca e histórico:** a tela inicial mostra a última troca e a marca "devendo N" ao lado do nome; a tela "Histórico de trocas" lista tudo, da mais recente para a mais antiga, 30 por página.
 - **Sem notificação** por enquanto.
 

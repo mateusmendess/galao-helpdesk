@@ -81,19 +81,21 @@ def test_admin_recebe_erro_ao_repetir_o_titular(client, admin_usuario, equipe):
     assert Troca.objects.count() == 1
 
 
-def test_troca_nao_pode_ser_alterada_nem_apagada(
+def test_troca_antiga_nao_muda_o_titular_e_nao_pode_ser_apagada(
     client, admin_usuario, equipe, registrar
 ):
+    # Antes deste modulo a troca nao podia ser alterada nem apagada. Agora o
+    # titular continua fixo e a troca de uma rodada antiga continua protegida.
     pessoa, pessoa2 = equipe[:2]
     troca = registrar(pessoa)
+    for outra in equipe[1:]:
+        registrar(outra)
+    registrar(pessoa)  # a rodada 2 ja tem troca
     client.force_login(admin_usuario)
     url = reverse("admin:fila_troca_change", args=[troca.pk])
 
-    # Consulta abre (so leitura), mas a alteracao nao grava.
-    consulta = client.get(url)
-    assert consulta.status_code == 200
-    assert consulta.context["has_change_permission"] is False
-    client.post(url, {"titular": pessoa2.pk, "executor": pessoa2.pk})
+    assert client.get(url).status_code == 200
+    client.post(url, {"titular": pessoa2.pk, "executor": pessoa.pk})
     troca.refresh_from_db()
     assert troca.titular == pessoa
 
