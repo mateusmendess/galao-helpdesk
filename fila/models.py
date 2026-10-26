@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
-from django.db.models import Q, Value
+from django.db.models import F, Q, Value
 from django.utils import timezone
 
 
@@ -113,3 +113,74 @@ class Troca(models.Model):
             super().save(*args, **kwargs)
             if criando:
                 fechar_rodada_se_completa(self.rodada)
+
+
+FIM_ANTES_DO_INICIO = "O fim não pode ser antes do início."
+
+
+class Ausencia(models.Model):
+    """Periodo (inclusivo) em que a pessoa sai da fila; fim vazio = em aberto."""
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="ausencias",
+        verbose_name="pessoa",
+    )
+    inicio = models.DateField("início")
+    fim = models.DateField(
+        "fim",
+        null=True,
+        blank=True,
+        help_text=(
+            "Deixe em branco se não souber quando a pessoa volta. "
+            "O fim não pode ser antes do início."
+        ),
+    )
+
+    class Meta:
+        verbose_name = "ausência"
+        verbose_name_plural = "ausências"
+        ordering = ["-inicio"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(fim__isnull=True) | Q(fim__gte=F("inicio")),
+                name="ausencia_fim_nao_antes_do_inicio",
+                violation_error_message=FIM_ANTES_DO_INICIO,
+            ),
+        ]
+
+    def __str__(self):
+        from .regras import nome_de_exibicao
+
+        periodo = f"{self.inicio:%d/%m/%Y} " + (
+            f"a {self.fim:%d/%m/%Y}" if self.fim else "em diante (em aberto)"
+        )
+        return f"{nome_de_exibicao(self.usuario)}: {periodo}"
+
+    def clean(self):
+        super().clean()
+        if self.inicio and self.fim and self.fim < self.inicio:
+            raise ValidationError({"fim": FIM_ANTES_DO_INICIO})
+        if not (self.usuario_id and self.inicio):
+            return
+        # Sobrepoe se inicio_A <= fim_B e inicio_B <= fim_A (vazio = infinito).
+        # Nao enxerga dois admins salvando ao mesmo tempo (uso raro, so admins).
+        outras = Ausencia.objects.filter(usuario_id=self.usuario_id).exclude(pk=self.pk)
+        outras = outras.filter(Q(fim__isnull=True) | Q(fim__gte=self.inicio))
+        if self.fim:
+            outras = outras.filter(inicio__lte=self.fim)
+        existente = outras.order_by("inicio").first()
+        if existente is None:
+            return
+        if existente.fim is None:
+            raise ValidationError(
+                "Esta pessoa já tem uma ausência neste período "
+                f"({existente.inicio:%d/%m} em diante, em aberto). Preencha o fim "
+                "da ausência anterior antes de cadastrar outra."
+            )
+        raise ValidationError(
+            "Esta pessoa já tem uma ausência neste período "
+            f"({existente.inicio:%d/%m} a {existente.fim:%d/%m}). Ajuste a "
+            "ausência existente em vez de criar outra."
+        )

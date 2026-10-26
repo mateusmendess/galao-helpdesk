@@ -2,8 +2,9 @@ from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.db.models import F, Q
 from django.shortcuts import redirect
+from django.utils import timezone
 
-from .models import Rodada, Troca
+from .models import Ausencia, Rodada, Troca
 from .regras import (
     TrocaNaoPodeSerApagada,
     apagar_troca,
@@ -145,3 +146,39 @@ class TrocaAdmin(admin.ModelAdmin):
     @admin.display(description="registrada por", ordering="registrada_por__first_name")
     def nome_de_quem_registrou(self, obj):
         return nome_de_exibicao(obj.registrada_por)
+
+
+@admin.register(Ausencia)
+class AusenciaAdmin(admin.ModelAdmin):
+    list_display = ("nome_da_pessoa", "inicio", "fim", "situacao")
+    list_filter = ("usuario",)
+    list_select_related = ("usuario",)
+    fields = ("usuario", "inicio", "fim")
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if "usuario" in form.base_fields:
+            # Quem esta na fila e, ao editar, a pessoa da ausencia (mesmo se
+            # desativada ou tirada da fila depois).
+            na_fila = Q(is_active=True, ordem__isnull=False)
+            if obj is not None:
+                na_fila |= Q(pk=obj.usuario_id)
+            campo = form.base_fields["usuario"]
+            campo.queryset = (
+                get_user_model().objects.filter(na_fila).order_by(*ORDEM_DOS_USUARIOS)
+            )
+            campo.label_from_instance = nome_de_exibicao
+        return form
+
+    @admin.display(description="pessoa", ordering="usuario__first_name")
+    def nome_da_pessoa(self, obj):
+        return nome_de_exibicao(obj.usuario)
+
+    @admin.display(description="situação")
+    def situacao(self, obj):
+        hoje = timezone.localdate()
+        if obj.inicio > hoje:
+            return "futura"
+        if obj.fim is not None and obj.fim < hoje:
+            return "encerrada"
+        return "ausente hoje"

@@ -4,9 +4,9 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 
-from fila import regras
-from fila.models import Rodada
+from fila.models import Ausencia, Rodada
 
 pytestmark = pytest.mark.django_db
 
@@ -96,10 +96,10 @@ def test_sem_primeiro_nome_aparece_o_email(client, admin_usuario, equipe):
     assert linhas_da_fila(conteudo)[0] == "1 pessoa1@exemplo.test vez agora"
 
 
-def test_ninguem_disponivel_quando_todos_estao_ausentes(
-    client, admin_usuario, equipe, monkeypatch
-):
-    monkeypatch.setattr(regras, "ausentes_hoje", lambda: set(equipe))
+def test_ninguem_disponivel_quando_todos_estao_ausentes(client, admin_usuario, equipe):
+    # Ausencias de verdade, em aberto desde hoje.
+    hoje = timezone.localdate()
+    Ausencia.objects.bulk_create(Ausencia(usuario=u, inicio=hoje) for u in equipe)
 
     conteudo = tela(client, admin_usuario)
 
@@ -174,8 +174,8 @@ def test_consultas_nao_crescem_com_o_tamanho_da_fila(
 
     assert com_2 == com_7
     # 2 do login + 6 da fila (com a conferencia da rodada) + 2 savepoints
-    # + 2 do saldo "devendo" + 1 da ultima troca.
-    assert com_7 <= 13
+    # + 2 do saldo "devendo" + 1 da ultima troca + 1 das ausencias de hoje.
+    assert com_7 <= 14
 
 
 def test_subtitulo_e_so_help_desk(client, membro):
