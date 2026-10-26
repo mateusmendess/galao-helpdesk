@@ -19,7 +19,7 @@
 
       <div>
         <p class="text-sm font-medium text-gray-700">De quem era a vez</p>
-        <p class="mt-1 text-xl font-bold">{{ vez.first_name|default:vez.email }}</p>
+        <p class="mt-1 text-xl font-bold wrap-anywhere">{{ vez.first_name|default:vez.email }}</p>
       </div>
 
       <fieldset>
@@ -28,7 +28,7 @@
           <div class="mt-2 space-y-2">
             <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
               <input type="radio" name="{{ form.quem.html_name }}" value="eu" {% if marcado == "eu" %}checked{% endif %}>
-              <span>Fui eu ({{ user.first_name|default:user.email }})</span>
+              <span class="min-w-0 wrap-anywhere">Fui eu ({{ user.first_name|default:user.email }})</span>
             </label>
             <label class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
               <input type="radio" name="{{ form.quem.html_name }}" value="outra" {% if marcado == "outra" %}checked{% endif %}>
@@ -46,7 +46,7 @@
           {{ form.executor }}
           {% for erro in form.executor.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
         </div>
-        <p class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Se quem trocou não for {{ vez.first_name|default:vez.email }}, a vez de {{ vez.first_name|default:vez.email }} conta como cumprida e essa pessoa passa a dever 1 troca. Quem trocou no lugar dela abate 1 da própria dívida, se tiver.</p>
+        <p class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 wrap-anywhere">Se quem trocou não for {{ vez.first_name|default:vez.email }}, a vez de {{ vez.first_name|default:vez.email }} conta como cumprida e essa pessoa passa a dever 1 troca. Quem trocou no lugar dela abate 1 da própria dívida, se tiver.</p>
       </div>
 
       <div>

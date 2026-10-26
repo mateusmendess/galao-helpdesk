@@ -11,7 +11,7 @@
   {% if messages %}
     <div class="mx-auto w-full max-w-sm space-y-2 px-4 pt-4">
       {% for mensagem in messages %}
-        <p class="rounded-lg border px-4 py-3 text-sm {% if mensagem.level_tag == 'success' %}border-green-300 bg-green-50 text-green-900{% else %}border-red-200 bg-red-50 text-red-800{% endif %}" role="{% if mensagem.level_tag == 'success' %}status{% else %}alert{% endif %}">{{ mensagem }}</p>
+        <p class="rounded-lg border px-4 py-3 text-sm wrap-anywhere {% if mensagem.level_tag == 'success' %}border-green-300 bg-green-50 text-green-900{% else %}border-red-200 bg-red-50 text-red-800{% endif %}" role="{% if mensagem.level_tag == 'success' %}status{% else %}alert{% endif %}">{{ mensagem }}</p>
       {% endfor %}
     </div>
   {% endif %}
