@@ -18,6 +18,9 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 | Qualidade | pytest-django + ruff | Testes e verificação de estilo do código |
 | CI/CD | GitHub Actions (CI desde o módulo 1) + Railway | CI: lint + testes em cada push e PR. Deploy: sai da `main`, só com o CI verde |
 
+**Visual:** as cores do sistema são tokens no bloco `@theme` de `static_src/input.css` (`tinta`, `agua`, `fundo`, `texto`, `ok`, `aviso`, `ausente`, `erro`...), viram classes como `bg-agua`/`text-tinta`, e o foco visível é uma regra global (contorno de 3 px na tinta).
+A tela inicial usa o cabeçalho `templates/_cabecalho.html` (marca, rodada e menu da conta em `<details>`, sem JavaScript) e tem o cartão da vez como elemento principal, com a barra de progresso da rodada, o botão "Troquei o galão" e a última troca; a fila marca cada estado por forma e texto; no computador são duas colunas.
+
 ---
 
 ## 2. Regras de negócio
