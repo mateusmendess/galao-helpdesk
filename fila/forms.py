@@ -4,10 +4,11 @@ from django.db.models import F
 
 from .regras import nome_de_exibicao
 
-# Mesmas classes dos campos de templates/registration (o Tailwind so le templates/).
+# Mesmas classes dos campos de templates/registration/login.html (o Tailwind so le
+# templates/): 48 px de altura, borda #7F8F97 e o foco global na tinta.
 CAMPO = (
-    "mt-1 block w-full rounded-lg border border-gray-500 bg-white px-3 py-2 "
-    "focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/40"
+    "mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 "
+    "text-base text-texto border-[#7f8f97]"
 )
 
 FUI_EU = "eu"

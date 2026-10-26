@@ -1,4 +1,6 @@
 {# Cabecalho de uma linha: marca, rodada e menu da conta (details, sem JavaScript). #}
+{# Parametros do include: marca_p=True quando a pagina tem o proprio <h1>;     #}
+{# sem_menu=True nas telas de senha (sem menu, sem links).                     #}
 <header class="border-b border-borda bg-white">
   <div class="mx-auto flex w-full max-w-md items-center gap-3 px-4 py-2 md:max-w-4xl">
     <svg class="h-7 w-7 shrink-0" viewBox="0 0 32 32" aria-hidden="true">
@@ -6,12 +8,17 @@
       <path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#0B4F6C"/>
     </svg>
     <div class="min-w-0 flex-1">
-      <h1 class="text-base font-bold leading-tight">Troca do Galão</h1>
+      {% if marca_p %}
+        <p class="text-base font-bold leading-tight">Troca do Galão</p>
+      {% else %}
+        <h1 class="text-base font-bold leading-tight">Troca do Galão</h1>
+      {% endif %}
       <p class="text-xs text-texto-suave">Help Desk</p>
     </div>
     {% if rodada %}
       <span class="shrink-0 rounded-full bg-agua px-2.5 py-1 text-[13px] font-semibold text-tinta">Rodada {{ rodada.numero }}</span>
     {% endif %}
+    {% if not sem_menu %}
     <details class="relative shrink-0">
       <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-[10px] border border-borda bg-white hover:bg-fundo [&::-webkit-details-marker]:hidden" aria-label="Menu da conta">
         <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="#14232B" stroke-width="2" stroke-linecap="round"/></svg>
@@ -27,5 +34,6 @@
         </form>
       </div>
     </details>
+    {% endif %}
   </div>
 </header>

@@ -20,6 +20,8 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 
 **Visual:** as cores do sistema são tokens no bloco `@theme` de `static_src/input.css` (`tinta`, `agua`, `fundo`, `texto`, `ok`, `aviso`, `ausente`, `erro`...), viram classes como `bg-agua`/`text-tinta`, e o foco visível é uma regra global (contorno de 3 px na tinta).
 A tela inicial usa o cabeçalho `templates/_cabecalho.html` (marca, rodada e menu da conta em `<details>`, sem JavaScript) e tem o cartão da vez como elemento principal, com a barra de progresso da rodada, o botão "Troquei o galão" e a última troca; a fila marca cada estado por forma e texto; no computador são duas colunas.
+Os formulários (entrar, registrar troca, trocar senha e senha alterada) seguem o mesmo estilo: campos de 48 px com borda #7F8F97, botões de 48 a 52 px, avisos e erros com ícone.
+O cabeçalho aceita parâmetros no include: `marca_p=True` (a marca vira `<p>` quando a página tem o próprio `<h1>`) e `sem_menu=True` (telas de senha, sem menu nem links); o entrar não tem cabeçalho.
 
 ---
 
