@@ -2,46 +2,52 @@
 
 {% block title %}Histórico de trocas - Troca do Galão{% endblock %}
 
+{% block cabecalho %}{% include "_cabecalho.html" with marca_p=True %}{% endblock %}
+
 {% block content %}
-<main class="flex min-h-screen items-center justify-center p-4">
-  <section class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
-    <h1 class="text-center text-3xl font-bold">Histórico de trocas</h1>
+<main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-xl">
+  <a href="{% url 'home' %}" class="-ml-1 inline-flex min-h-11 items-center px-1 font-semibold text-tinta hover:underline">&lsaquo; Voltar</a>
+  <h1 class="text-2xl font-extrabold">Histórico de trocas</h1>
 
-    {% if pagina.object_list %}
-      <ol class="mt-6 divide-y divide-gray-200">
-        {% for troca in pagina %}
-          <li class="py-3">
-            <p class="font-medium wrap-anywhere">
-              {% if troca.executor_id == troca.titular_id %}
-                {{ troca.executor.first_name|default:troca.executor.email }} trocou
-              {% else %}
-                {{ troca.executor.first_name|default:troca.executor.email }} trocou no lugar de {{ troca.titular.first_name|default:troca.titular.email }}
-                <span class="ml-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">cobertura</span>
-              {% endif %}
-            </p>
-            <p class="mt-1 text-sm text-gray-600 wrap-anywhere">{{ troca.data_hora|date:"d/m" }} às {{ troca.data_hora|date:"H:i" }} · Rodada {{ troca.rodada.numero }} · registrada por {{ troca.registrada_por.first_name|default:troca.registrada_por.email }}</p>
-            {% if troca.observacao %}<p class="mt-1 text-sm text-gray-700 wrap-anywhere">“{{ troca.observacao }}”</p>{% endif %}
-          </li>
-        {% endfor %}
-      </ol>
-    {% else %}
-      <p class="mt-6 text-center text-gray-700">Nenhuma troca registrada ainda.</p>
-    {% endif %}
+  {% if grupos %}
+    {% for grupo in grupos %}
+      <section class="mt-4">
+        <h2 class="flex items-baseline justify-between gap-3 text-[15px] font-bold text-tinta">
+          <span>Rodada {{ grupo.rodada.numero }}</span>
+          <span class="text-sm font-medium text-texto-suave">{{ grupo.total }} troca{{ grupo.total|pluralize }}</span>
+        </h2>
+        <ol class="mt-1.5 space-y-2">
+          {% for troca in grupo.trocas %}
+            <li class="flex gap-3 rounded-[10px] border border-borda bg-white px-3 py-2.5">
+              <time class="w-[52px] shrink-0 text-[13px] leading-snug font-semibold text-texto-suave tabular-nums" datetime="{{ troca.data_hora|date:'c' }}">{{ troca.data_hora|date:"d/m" }}<br>{{ troca.data_hora|date:"H:i" }}</time>
+              <div class="min-w-0 flex-1">
+                {% if troca.executor_id == troca.titular_id %}
+                  <p class="text-[15px] font-bold wrap-anywhere">{{ troca.executor.first_name|default:troca.executor.email }} trocou</p>
+                {% else %}
+                  <p class="text-[15px] font-bold wrap-anywhere">{{ troca.executor.first_name|default:troca.executor.email }} trocou no lugar de {{ troca.titular.first_name|default:troca.titular.email }} <span class="ml-1 inline-block rounded-md border border-[#e3b878] bg-aviso-fundo px-1.5 text-xs font-bold text-aviso">cobertura</span></p>
+                {% endif %}
+                <p class="mt-0.5 text-[13px] text-texto-suave wrap-anywhere">registrada por {{ troca.registrada_por.first_name|default:troca.registrada_por.email }}</p>
+                {% if troca.observacao %}<p class="mt-0.5 text-[13px] text-texto wrap-anywhere">“{{ troca.observacao }}”</p>{% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+    {% endfor %}
+  {% else %}
+    <p class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto">Nenhuma troca registrada ainda.</p>
+  {% endif %}
 
-    {% if pagina.has_previous or pagina.has_next %}
-      <p class="mt-6 flex justify-between gap-4">
-        {% if pagina.has_previous %}
-          <a href="?pagina={{ pagina.previous_page_number }}" class="font-medium text-blue-700 underline-offset-2 hover:underline">&lsaquo; Mais recentes</a>
-        {% else %}<span></span>{% endif %}
-        {% if pagina.has_next %}
-          <a href="?pagina={{ pagina.next_page_number }}" class="font-medium text-blue-700 underline-offset-2 hover:underline">Mais antigas &rsaquo;</a>
-        {% endif %}
-      </p>
-    {% endif %}
-
-    <p class="mt-6 text-center">
-      <a href="{% url 'home' %}" class="font-medium text-blue-700 underline-offset-2 hover:underline">&lsaquo; Voltar</a>
-    </p>
-  </section>
+  {% if pagina.has_previous or pagina.has_next %}
+    {# Cada botao ocupa a metade; sozinho, ocupa a linha toda. #}
+    <div class="mt-5 flex gap-2.5">
+      {% if pagina.has_previous %}
+        <a href="?pagina={{ pagina.previous_page_number }}" class="flex min-h-12 flex-1 items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-3 font-semibold text-tinta hover:bg-agua">&lsaquo; Mais recentes</a>
+      {% endif %}
+      {% if pagina.has_next %}
+        <a href="?pagina={{ pagina.next_page_number }}" class="flex min-h-12 flex-1 items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-3 font-semibold text-tinta hover:bg-agua">Mais antigas &rsaquo;</a>
+      {% endif %}
+    </div>
+  {% endif %}
 </main>
 {% endblock %}

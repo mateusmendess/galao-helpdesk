@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.db.models import Count
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods, require_safe
 
@@ -67,4 +68,32 @@ def historico(request):
         "rodada", "titular", "executor", "registrada_por"
     ).order_by("-data_hora", "-id")
     pagina = Paginator(trocas, TROCAS_POR_PAGINA).get_page(request.GET.get("pagina"))
-    return render(request, "fila/historico.html", {"pagina": pagina})
+    return render(
+        request, "fila/historico.html", {"pagina": pagina, "grupos": agrupar(pagina)}
+    )
+
+
+def agrupar(pagina):
+    """Trocas da pagina agrupadas por rodada, na ordem em que ja vieram.
+
+    Cada grupo leva o total de trocas da rodada inteira (nao so da pagina),
+    contado numa unica consulta agregada. Trocas de uma rodada que nao ficam
+    em sequencia (data lancada a mao no admin) formam outro grupo com o mesmo
+    titulo.
+    """
+    trocas = list(pagina.object_list)
+    rodadas = {troca.rodada_id for troca in trocas}
+    totais = dict(
+        Troca.objects.filter(rodada_id__in=rodadas)
+        .order_by()
+        .values_list("rodada_id")
+        .annotate(total=Count("id"))
+    )
+    grupos = []
+    for troca in trocas:
+        if not grupos or grupos[-1]["rodada"].pk != troca.rodada_id:
+            grupos.append(
+                {"rodada": troca.rodada, "total": totais[troca.rodada_id], "trocas": []}
+            )
+        grupos[-1]["trocas"].append(troca)
+    return grupos
