@@ -155,11 +155,12 @@ def test_historico_do_mais_recente_ao_mais_antigo(client, equipe, admin_usuario)
 
     itens = itens_de_lista(tela(client, equipe[0], "historico"))
 
+    # Desde o pedido 14: data e hora empilhadas antes da frase, e a rodada
+    # no titulo do grupo (fora do cartao).
     assert itens == [
-        "Pessoa 7 trocou no lugar de Pessoa 2 cobertura "
-        "25/10 às 15:30 · Rodada 1 · registrada por Pessoa Admin",
-        "Pessoa 1 trocou 25/10 às 14:30 · Rodada 1 · registrada por Pessoa Admin "
-        "“galão novo”",
+        "25/10 15:30 Pessoa 7 trocou no lugar de Pessoa 2 cobertura "
+        "registrada por Pessoa Admin",
+        "25/10 14:30 Pessoa 1 trocou registrada por Pessoa Admin “galão novo”",
     ]
 
 

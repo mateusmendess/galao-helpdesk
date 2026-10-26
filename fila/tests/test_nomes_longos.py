@@ -2,7 +2,6 @@ import re
 
 import pytest
 from django.urls import reverse
-from django.utils import timezone
 
 from fila.regras import registrar_troca
 
@@ -100,8 +99,9 @@ def test_historico_quebra_as_linhas_da_troca(client, longos):
     html = pagina(client, sem_nome, "historico")
 
     assert QUEBRA in classes_de(html, PALAVRA_LONGA)  # "X trocou no lugar de Y"
-    data = timezone.localtime(troca.data_hora).strftime("%d/%m")
-    assert QUEBRA in classes_de(html, data)  # "data · Rodada · registrada por"
+    # Desde o pedido 14 a data fica numa coluna propria; o nome de quem
+    # registrou esta na linha "registrada por".
+    assert QUEBRA in classes_de(html, "registrada por")
     assert QUEBRA in classes_de(html, "“")
 
 

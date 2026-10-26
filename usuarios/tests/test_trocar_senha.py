@@ -187,7 +187,8 @@ def test_tela_de_senha_alterada(client, membro):
 
     conteudo = resposta.content.decode()
     assert "Senha alterada" in conteudo
-    assert "Sua nova senha já vale." in conteudo
+    assert "Sua senha foi alterada com sucesso." in conteudo
+    assert "Sua nova senha já vale." not in conteudo
 
 
 def test_nao_existe_esqueci_a_senha(client):

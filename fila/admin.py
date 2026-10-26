@@ -1,8 +1,11 @@
+import re
+
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.db.models import F, Q
 from django.shortcuts import redirect
 from django.utils import timezone
+from django.utils.safestring import SafeString, mark_safe
 
 from .models import Ausencia, Rodada, Troca
 from .regras import (
@@ -15,10 +18,39 @@ from .regras import (
 )
 
 ORDEM_DOS_USUARIOS = (F("ordem").asc(nulls_last=True), "email")
+# Opcao vazia dos seletores de pessoa (o Django 6.1 mostra "- Select an option -").
+ESCOLHA_UMA_PESSOA = "Escolha uma pessoa"
+
+
+class MensagensNoFeminino:
+    """As mensagens de sucesso do admin vem no masculino ("O troca ... foi
+    adicionado"); para modelos femininos, reescreve so essas frases."""
+
+    TROCAS = (
+        ("foi adicionado com sucesso", "foi adicionada com sucesso"),
+        ("foi alterado com sucesso", "foi alterada com sucesso"),
+        ("foi removido com sucesso", "foi excluída com sucesso"),
+        ("Você pode editá-lo novamente abaixo", "Você pode editá-la novamente abaixo"),
+        ("Você pode alterá-lo novamente abaixo", "Você pode editá-la novamente abaixo"),
+        ("Você pode adicionar outro ", "Você pode adicionar outra "),
+        ("Você talvez adicione outro ", "Você pode adicionar outra "),
+    )
+
+    def message_user(self, request, message, *args, **kwargs):
+        nome = str(self.opts.verbose_name)
+        inicio = re.compile(r"^O\s+" + re.escape(nome) + r"\s+“")
+        texto = str(message)
+        if inicio.match(texto):
+            texto = inicio.sub(f"A {nome} “", texto, count=1)
+            for antes, depois in self.TROCAS:
+                texto = texto.replace(antes, depois)
+            # O Django ja escapou o nome do objeto; o resto e texto fixo.
+            message = mark_safe(texto) if isinstance(message, SafeString) else texto
+        super().message_user(request, message, *args, **kwargs)
 
 
 @admin.register(Rodada)
-class RodadaAdmin(admin.ModelAdmin):
+class RodadaAdmin(MensagensNoFeminino, admin.ModelAdmin):
     # So consulta: rodadas abrem e fecham sozinhas.
     list_display = ("numero", "aberta_em", "fechada_em")
 
@@ -33,7 +65,7 @@ class RodadaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Troca)
-class TrocaAdmin(admin.ModelAdmin):
+class TrocaAdmin(MensagensNoFeminino, admin.ModelAdmin):
     # Adicionar; numa troca ja gravada, corrigir so executor e observacao, e
     # apagar so pela regra de pode_apagar_troca (uma por vez).
     list_display = (
@@ -119,6 +151,7 @@ class TrocaAdmin(admin.ModelAdmin):
             if db_field.name == "titular":
                 ativos = ativos.filter(ordem__isnull=False)
             kwargs["queryset"] = ativos.order_by(*ORDEM_DOS_USUARIOS)
+            kwargs["empty_label"] = ESCOLHA_UMA_PESSOA
         campo = super().formfield_for_foreignkey(db_field, request, **kwargs)
         if db_field.name in ("titular", "executor", "registrada_por"):
             campo.label_from_instance = nome_de_exibicao
@@ -149,7 +182,7 @@ class TrocaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Ausencia)
-class AusenciaAdmin(admin.ModelAdmin):
+class AusenciaAdmin(MensagensNoFeminino, admin.ModelAdmin):
     list_display = ("nome_da_pessoa", "inicio", "fim", "situacao")
     list_filter = ("usuario",)
     list_select_related = ("usuario",)
@@ -168,6 +201,7 @@ class AusenciaAdmin(admin.ModelAdmin):
                 get_user_model().objects.filter(na_fila).order_by(*ORDEM_DOS_USUARIOS)
             )
             campo.label_from_instance = nome_de_exibicao
+            campo.empty_label = ESCOLHA_UMA_PESSOA
         return form
 
     @admin.display(description="pessoa", ordering="usuario__first_name")

@@ -22,6 +22,8 @@ Sistema web simples para o time do Help Desk (7 pessoas) controlar de quem é a 
 A tela inicial usa o cabeçalho `templates/_cabecalho.html` (marca, rodada e menu da conta em `<details>`, sem JavaScript) e tem o cartão da vez como elemento principal, com a barra de progresso da rodada, o botão "Troquei o galão" e a última troca; a fila marca cada estado por forma e texto; no computador são duas colunas.
 Os formulários (entrar, registrar troca, trocar senha e senha alterada) seguem o mesmo estilo: campos de 48 px com borda #7F8F97, botões de 48 a 52 px, avisos e erros com ícone.
 O cabeçalho aceita parâmetros no include: `marca_p=True` (a marca vira `<p>` quando a página tem o próprio `<h1>`) e `sem_menu=True` (telas de senha, sem menu nem links); o entrar não tem cabeçalho.
+O histórico agrupa as trocas por rodada (título "Rodada N" com o total de trocas da rodada inteira, contado numa consulta só), com data e hora empilhadas em cada cartão.
+No /admin/, o mixin `MensagensNoFeminino` (em `fila/admin.py`) põe no feminino as mensagens de sucesso de Troca, Ausência e Rodada; os seletores de pessoa mostram "Escolha uma pessoa" como opção vazia.
 
 ---
 
