@@ -71,6 +71,8 @@ A `ordem` de cada usuário (no /admin/) define a posição na fila; quem não te
 Qualquer pessoa logada registra a troca pelo botão "Troquei o galão" na tela inicial (inclusive cobertura).
 O histórico completo fica em "Ver histórico" (/trocas/); a marca "devendo N" vem desse histórico.
 O admin ainda pode lançar trocas em /admin/ (Fila › Trocas).
+No /admin/, o admin corrige o executor e a observação de uma troca; o "devendo" se acerta sozinho.
+Apagar só vale para uma troca da rodada atual, ou da última rodada fechada enquanto a atual estiver vazia (essa rodada é reaberta).
 
 ### Testes e ruff
 
