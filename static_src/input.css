@@ -3,3 +3,28 @@
 
 /* Onde o Tailwind procura as classes usadas. */
 @source "../templates";
+
+/* Paleta do sistema: cada --color-NOME vira bg-NOME, text-NOME, border-NOME... */
+@theme {
+  --color-tinta: #0b4f6c;
+  --color-agua: #e3f2f7;
+  --color-fundo: #f3f6f7;
+  --color-texto: #14232b;
+  --color-texto-suave: #4a5b64;
+  --color-borda: #d5dee2;
+  --color-ok: #1d6b47;
+  --color-ok-fundo: #e6f4ec;
+  --color-aviso: #8a4600;
+  --color-aviso-fundo: #fff0d4;
+  --color-ausente: #5a6670;
+  --color-erro: #b42318;
+  --color-erro-fundo: #fef2f1;
+}
+
+@layer base {
+  /* Foco visivel em tudo que recebe teclado (8,94:1 contra o branco). */
+  :focus-visible {
+    outline: 3px solid var(--color-tinta);
+    outline-offset: 2px;
+  }
+}

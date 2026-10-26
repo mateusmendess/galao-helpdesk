@@ -7,11 +7,22 @@
   <title>{% block title %}Troca do Galão{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-<body class="min-h-screen bg-gray-100 text-gray-900 antialiased">
+<body class="min-h-screen bg-fundo text-texto antialiased">
+  {% block cabecalho %}{% endblock %}
   {% if messages %}
-    <div class="mx-auto w-full max-w-sm space-y-2 px-4 pt-4">
+    <div class="mx-auto w-full max-w-md space-y-2 px-4 pt-4 md:max-w-4xl">
       {% for mensagem in messages %}
-        <p class="rounded-lg border px-4 py-3 text-sm wrap-anywhere {% if mensagem.level_tag == 'success' %}border-green-300 bg-green-50 text-green-900{% else %}border-red-200 bg-red-50 text-red-800{% endif %}" role="{% if mensagem.level_tag == 'success' %}status{% else %}alert{% endif %}">{{ mensagem }}</p>
+        {% if mensagem.level_tag == 'success' %}
+          <div class="flex items-start gap-2 rounded-lg border border-[#9bd0b3] bg-ok-fundo px-4 py-3 text-sm text-[#14513a]">
+            <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p class="min-w-0 wrap-anywhere" role="status">{{ mensagem }}</p>
+          </div>
+        {% else %}
+          <div class="flex items-start gap-2 rounded-lg border border-erro bg-erro-fundo px-4 py-3 text-sm text-erro">
+            <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v6M12 16.5v.1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <p class="min-w-0 wrap-anywhere" role="alert">{{ mensagem }}</p>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
   {% endif %}
