@@ -1,6 +1,6 @@
-# galao-helpdesk
+# Help Desk Equipe
 
-Controle de quem é a vez de trocar o galão de água do time de Help Desk.
+Help Desk Equipe (nome técnico `galao-helpdesk`): controle de quem é a vez de trocar o galão de água do time de Help Desk.
 
 ## Como rodar localmente (Windows, PowerShell)
 

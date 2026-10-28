@@ -9,6 +9,10 @@ from fila import views as fila_views
 from usuarios.forms import EntrarForm
 from usuarios.views import TrocarSenhaView
 
+# Nome do sistema no cabecalho e na aba do /admin/ (index_title fica o padrao).
+admin.site.site_header = "Help Desk Equipe"
+admin.site.site_title = "Help Desk Equipe"
+
 urlpatterns = [
     path("", core_views.home, name="home"),
     path("saude/", core_views.saude, name="saude"),

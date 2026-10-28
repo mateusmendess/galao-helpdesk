@@ -1,4 +1,4 @@
-# Controle da Troca do Galão — Estrutura do Projeto
+# Help Desk Equipe — Estrutura do Projeto
 
 **Nome técnico (pasta, repositório no GitHub e projeto no Railway):** `galao-helpdesk`
 
