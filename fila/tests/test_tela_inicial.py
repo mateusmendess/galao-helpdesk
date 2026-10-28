@@ -182,5 +182,5 @@ def test_subtitulo_e_so_help_desk(client, membro):
     conteudo = tela(client, membro)
 
     # Desde a reforma visual o "Help Desk" fica no cabecalho: confere o texto.
-    assert re.search(r">\s*Help Desk\s*<", conteudo)
+    assert re.search(r">\s*Help Desk Equipe\s*<", conteudo)
     assert "em construção" not in conteudo
