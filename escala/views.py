@@ -199,3 +199,9 @@ def desfazer(request, pk):
     else:
         messages.success(request, "Troca desfeita. Avise a equipe por e-mail.")
     return redirect("escala_trocas")
+
+
+@login_required
+@require_safe
+def regras(request):
+    return render(request, "escala/regras.html")

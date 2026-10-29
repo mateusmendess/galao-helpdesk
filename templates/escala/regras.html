@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Regras da escala · Help Desk Equipe{% endblock %}
+
+{% block cabecalho %}{% include "_cabecalho.html" with marca_p=True %}{% endblock %}
+
+{% block content %}
+<main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-xl">
+  <a href="{% url 'escala' %}" class="-ml-1 inline-flex min-h-11 items-center px-1 font-semibold text-tinta hover:underline">&lsaquo; Voltar</a>
+  <h1 class="text-2xl font-extrabold">Regras da escala</h1>
+  <p class="mt-2 text-texto-suave">São as mesmas regras da planilha. O sistema aplica as de fila, data e troca; as demais valem como combinado da equipe.</p>
+
+  <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto" aria-labelledby="regras-sistema">
+    <h2 id="regras-sistema" class="text-xs font-bold tracking-wide text-texto-suave uppercase">O sistema aplica</h2>
+    <ol class="mt-1">
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">1.</span><p class="min-w-0 wrap-anywhere">Revezamento em dois turnos seguindo a tabela.</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">4.</span><p class="min-w-0 wrap-anywhere">Sábado feriado: quem estava escalado passa automaticamente para o próximo sábado.</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">5.</span><p class="min-w-0 wrap-anywhere">Trabalhar no domingo para resolver demanda NÃO influencia a escala (não conta como sábado cumprido).</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">6.</span><p class="min-w-0 wrap-anywhere">Convocação para domingo não influencia a escala.</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">7.</span>
+        <div class="min-w-0 wrap-anywhere">
+          <p>Substituição do dia é permitida se:</p>
+          <p class="mt-1">7.1 combinada previamente com a outra pessoa e informada à equipe;</p>
+          <p class="mt-1">7.2 em emergência sem tempo, analisada com o coordenador;</p>
+          <p class="mt-1">7.3 trocas temporárias valem só para datas específicas, depois a pessoa volta à tabela original;</p>
+          <p class="mt-1">7.4 substituição definitiva só com consenso das partes e do coordenador.</p>
+        </div>
+      </li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">9.</span><p class="min-w-0 wrap-anywhere">Convocação fora da escala para trabalho no sábado não influencia a escala original.</p></li>
+    </ol>
+  </section>
+
+  <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto" aria-labelledby="regras-equipe">
+    <h2 id="regras-equipe" class="text-xs font-bold tracking-wide text-texto-suave uppercase">A equipe faz (o sistema só lembra)</h2>
+    <ol class="mt-1">
+      <li class="flex gap-2 py-2.5"><span class="w-7 shrink-0 font-bold text-tinta">8.</span><p class="min-w-0 wrap-anywhere">Qualquer alteração na tabela é informada à equipe exclusivamente por e-mail.</p></li>
+    </ol>
+  </section>
+
+  <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto" aria-labelledby="regras-dia">
+    <h2 id="regras-dia" class="text-xs font-bold tracking-wide text-texto-suave uppercase">Combinado da equipe no dia</h2>
+    <ol class="mt-1">
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">2.</span><p class="min-w-0 wrap-anywhere">Suporte para o evento marcado e demandas do setor (pendentes ou não).</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">3.</span><p class="min-w-0 wrap-anywhere">Se o evento do turno não acontecer, a pessoa cumpre o horário até o fim se houver setor funcionando que possa acioná-la.</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">10.</span><p class="min-w-0 wrap-anywhere">Quem cobre escala de outro funcionário em outra unidade, ao voltar ao polo de origem, entra na escala atual.</p></li>
+      <li class="flex gap-2 border-t border-borda py-2.5 first:border-t-0"><span class="w-7 shrink-0 font-bold text-tinta">11.</span><p class="min-w-0 wrap-anywhere">Convocação do gestor dentro da escala: quem está cumprindo permanece na convocação até cumpri-la.</p></li>
+    </ol>
+  </section>
+
+  <p class="mt-4 text-sm text-texto-suave">Coordenador = os administradores do sistema.</p>
+</main>
+{% endblock %}
