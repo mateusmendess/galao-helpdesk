@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "core",
     "usuarios",
     "fila",
+    "escala",
 ]
 
 MIDDLEWARE = [

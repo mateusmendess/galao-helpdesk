@@ -12,7 +12,14 @@ class UsuarioAdmin(UserAdmin):
     form = UsuarioAlteracaoForm
     add_form = UsuarioCriacaoForm
 
-    list_display = ("email", "first_name", "ordem", "is_active", "eh_admin")
+    list_display = (
+        "email",
+        "first_name",
+        "ordem",
+        "ordem_escala",
+        "is_active",
+        "eh_admin",
+    )
     list_filter = ("is_active", "is_staff", "is_superuser")
     search_fields = ("email", "first_name", "last_name")
     # Quem esta na fila primeiro (1, 2, 3...), quem esta sem ordem por ultimo.
@@ -20,7 +27,10 @@ class UsuarioAdmin(UserAdmin):
 
     fieldsets = (
         (None, {"fields": ("email", "password", "precisa_trocar_senha")}),
-        ("Dados pessoais", {"fields": ("first_name", "last_name", "ordem")}),
+        (
+            "Dados pessoais",
+            {"fields": ("first_name", "last_name", "ordem", "ordem_escala")},
+        ),
         (
             "Permissões",
             {
@@ -44,6 +54,7 @@ class UsuarioAdmin(UserAdmin):
                     "email",
                     "first_name",
                     "ordem",
+                    "ordem_escala",
                     "usable_password",
                     "password1",
                     "password2",

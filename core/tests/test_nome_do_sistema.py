@@ -10,17 +10,6 @@ pytestmark = pytest.mark.django_db
 
 NOME = "Help Desk Equipe"
 NOME_ANTIGO = "Troca do Galão"
-MARCA = "text-base font-bold leading-tight"
-# "Troca do Galão" que ficou de proposito: e o titulo do assunto galao
-# (classe b do pedido 16), nao o nome do sistema.
-GALAO_QUE_FICA = {
-    ("_cabecalho.html", f'<p class="{MARCA}">Troca do Galão</p>'),
-    ("_cabecalho.html", f'<h1 class="{MARCA}">Troca do Galão</h1>'),
-    (
-        "registration/login.html",
-        '<h1 class="mt-1.5 text-2xl font-extrabold">Troca do Galão</h1>',
-    ),
-}
 
 
 def titulo(html):
@@ -89,7 +78,11 @@ def test_cabecalho_mostra_o_nome(client, membro, nome):
 def test_entrada_mostra_o_nome(client):
     html = html_de(client, None, "login")
 
-    assert re.search(r"<p [^>]*>Help Desk Equipe</p>", html)
+    # So dentro do <main> (o <title> tambem tem o nome): o <h1> e a marca.
+    corpo = html[html.index("<main") : html.index("</main>")]
+    assert re.findall(r"<h1\b[^>]*>(.*?)</h1>", corpo) == [NOME]
+    assert corpo.count(NOME) == 1
+    assert NOME_ANTIGO not in corpo
 
 
 @pytest.mark.parametrize("nome", ["login", "home"])
@@ -122,4 +115,4 @@ def test_nome_antigo_nao_sobrou_nos_templates():
             if NOME_ANTIGO in linha:
                 sobrou.add((relativo, linha.strip()))
 
-    assert sobrou == GALAO_QUE_FICA
+    assert sobrou == set()

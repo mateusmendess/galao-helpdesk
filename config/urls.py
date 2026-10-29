@@ -5,6 +5,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from core import views as core_views
+from escala import views as escala_views
 from fila import views as fila_views
 from usuarios.forms import EntrarForm
 from usuarios.views import TrocarSenhaView
@@ -24,6 +25,7 @@ urlpatterns = [
     ),
     path("trocas/", fila_views.historico, name="historico"),
     path("trocas/nova/", fila_views.registrar, name="registrar_troca"),
+    path("escala/", escala_views.pagina, name="escala"),
     path(
         "entrar/",
         auth_views.LoginView.as_view(authentication_form=EntrarForm),

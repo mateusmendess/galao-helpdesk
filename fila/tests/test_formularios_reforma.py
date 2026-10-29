@@ -48,7 +48,7 @@ def pagina(client, usuario, nome):
 def test_login_tem_a_marca_como_h1_unico_e_nenhum_menu(client):
     html = pagina(client, None, "login")
 
-    assert [t.strip() for t in h1s(html)] == ["Troca do Galão"]
+    assert [t.strip() for t in h1s(html)] == ["Help Desk Equipe"]
     assert "<header" not in html
     assert "Menu da conta" not in html and 'action="/sair/"' not in html
     assert "Help Desk" in html
@@ -69,7 +69,7 @@ def test_login_erro_fica_abaixo_do_subtitulo_com_icone_fora_do_texto(client, mem
     )
 
     html = resposta.content.decode()
-    titulo = html.index("Troca do Galão</h1>")
+    titulo = html.index("Help Desk Equipe</h1>")
     subtitulo = html.index("Entre com seu e-mail")
     erro = html.index("E-mail ou senha incorretos.")
     assert titulo < subtitulo < erro
@@ -88,7 +88,7 @@ def test_registrar_tem_menu_e_h1_proprio(client, equipe):
     html = pagina(client, equipe[0], "registrar_troca")
 
     assert [t.strip() for t in h1s(html)] == ["Registrar troca"]
-    assert re.search(r"<p [^>]*>Troca do Galão</p>", html)  # marca como <p>
+    assert re.search(r"<p [^>]*>Help Desk Equipe</p>", html)  # marca como <p>
     assert 'aria-label="Menu da conta"' in html
     assert 'href="{}"'.format(reverse("password_change")) in html
     assert html.count('action="/sair/"') == 1

@@ -19,7 +19,7 @@ def test_logado_ve_a_pagina_inicial_com_o_nome(client, membro):
     conteudo = resposta.content.decode()
     assert resposta.status_code == 200
     assert "core/home.html" in [t.name for t in resposta.templates]
-    assert "Troca do Galão" in conteudo
+    assert "Help Desk Equipe" in conteudo
     assert "Olá, Pessoa 1" in conteudo
 
 

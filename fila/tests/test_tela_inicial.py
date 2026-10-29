@@ -181,6 +181,8 @@ def test_consultas_nao_crescem_com_o_tamanho_da_fila(
 def test_subtitulo_e_so_help_desk(client, membro):
     conteudo = tela(client, membro)
 
-    # Desde a reforma visual o "Help Desk" fica no cabecalho: confere o texto.
-    assert re.search(r">\s*Help Desk Equipe\s*<", conteudo)
+    # So dentro do <header> (o <title> tambem tem o nome): a marca uma vez.
+    cabecalho = conteudo[conteudo.index("<header") : conteudo.index("</header>")]
+    assert cabecalho.count("Help Desk Equipe") == 1
+    assert "Troca do Galão" not in cabecalho
     assert "em construção" not in conteudo

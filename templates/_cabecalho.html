@@ -1,6 +1,7 @@
 {# Cabecalho de uma linha: marca, rodada e menu da conta (details, sem JavaScript). #}
 {# Parametros do include: marca_p=True quando a pagina tem o proprio <h1>;     #}
-{# sem_menu=True nas telas de senha (sem menu, sem links).                     #}
+{# sem_menu=True nas telas de senha (sem menu, sem links);                     #}
+{# aba="galao" ou "escala" mostra as abas das secoes (so na home e na escala). #}
 <header class="border-b border-borda bg-white">
   <div class="mx-auto flex w-full max-w-md items-center gap-3 px-4 py-2 md:max-w-4xl">
     <svg class="h-7 w-7 shrink-0" viewBox="0 0 32 32" aria-hidden="true">
@@ -9,11 +10,10 @@
     </svg>
     <div class="min-w-0 flex-1">
       {% if marca_p %}
-        <p class="text-base font-bold leading-tight">Troca do Galão</p>
+        <p class="text-base font-bold leading-tight">Help Desk Equipe</p>
       {% else %}
-        <h1 class="text-base font-bold leading-tight">Troca do Galão</h1>
+        <h1 class="text-base font-bold leading-tight">Help Desk Equipe</h1>
       {% endif %}
-      <p class="text-xs text-texto-suave">Help Desk Equipe</p>
     </div>
     {% if rodada %}
       <span class="shrink-0 rounded-full bg-agua px-2.5 py-1 text-[13px] font-semibold text-tinta">Rodada {{ rodada.numero }}</span>
@@ -36,4 +36,14 @@
     </details>
     {% endif %}
   </div>
+  {% if aba %}
+  <div class="mx-auto w-full max-w-md px-4 md:max-w-4xl">
+    <nav aria-label="Seções do sistema" class="flex md:max-w-[26rem]">
+      <a href="{% url 'home' %}"{% if aba == "galao" %} aria-current="page"{% endif %}
+         class="flex min-h-12 flex-1 items-center justify-center border-b-[3px] text-[15px] {% if aba == "galao" %}border-tinta font-bold text-tinta{% else %}border-transparent font-medium text-texto-suave hover:bg-fundo{% endif %}">Galão</a>
+      <a href="{% url 'escala' %}"{% if aba == "escala" %} aria-current="page"{% endif %}
+         class="flex min-h-12 flex-1 items-center justify-center border-b-[3px] text-[15px] {% if aba == "escala" %}border-tinta font-bold text-tinta{% else %}border-transparent font-medium text-texto-suave hover:bg-fundo{% endif %}">Escala de sábado</a>
+    </nav>
+  </div>
+  {% endif %}
 </header>
