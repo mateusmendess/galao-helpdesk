@@ -182,7 +182,10 @@ def test_historico_com_os_tres_estados_e_desfazer_so_para_quem_pode(
 
     assert texto(ativas).count("⇄") == 2 and "Pessoa 5 ⇄ Pessoa 1" in texto(ativas)
     assert "Desfazer troca" in ativas
-    assert "Você pode desfazer até 01/01. Depois, só um admin." in texto(ativas)
+    assert (
+        "Você pode desfazer até 01/01 (véspera do primeiro sábado). "
+        "Depois, só um admin." in texto(ativas)
+    )
     linhas = texto(historico)
     assert "Pessoa 5 ⇄ Pessoa 1 02/01 ⇄ 23/01" in linhas
     assert re.search(

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST, require_safe
 
@@ -13,7 +14,7 @@ from fila.regras import nome_de_exibicao
 from . import datas
 from .calculo import ConfiguracaoInvalida, calendario
 from .forms import TrocarSabadoForm, opcao
-from .models import ConfiguracaoEscala, SabadoSemEscala, TrocaSabado
+from .models import ConfiguracaoEscala, SabadoFechado, SabadoSemEscala, TrocaSabado
 from .trocas import (
     TURNOS,
     aplicar,
@@ -21,6 +22,7 @@ from .trocas import (
     eh_admin,
     pode_desfazer,
     registrar_troca,
+    sabados_em,
     situacao,
     ultimo_dia_para_desfazer,
 )
@@ -28,6 +30,7 @@ from .trocas import (
 QUANTOS = 9  # destaque + 6 na lista + 2 no "Ver mais"
 NA_LISTA = 6
 PARA_TROCAR = 12  # sabados oferecidos em "Trocar de sabado"
+GRAVADOS_PARA_ADMIN = 8  # sabados ja gravados que o admin tambem ve
 TROCAS_POR_PAGINA = 30
 MOTIVOS = dict(SabadoSemEscala.Motivo.choices)
 
@@ -95,11 +98,26 @@ def pagina(request):
     return render(request, "escala/pagina.html", contexto)
 
 
+def _gravados_para_admin():
+    """Os ultimos sabados ja gravados com alguem escalado, com as trocas
+    aplicadas, em ordem de data (o admin corrige sabado que passou)."""
+    datas_gravadas = list(
+        SabadoFechado.objects.filter(sem_escala=False)
+        .filter(Q(manha__isnull=False) | Q(tarde__isnull=False))
+        .order_by("-data")
+        .values_list("data", flat=True)[:GRAVADOS_PARA_ADMIN]
+    )
+    return sorted(sabados_em(datas_gravadas).values(), key=lambda i: i.dia.data)
+
+
 def _opcoes(usuario, admin):
-    """(meus, outros): turnos com dono dos proximos sabados. Membro: so data
-    depois de hoje, os dele em "meus" e os dos outros em "outros"."""
+    """(meus, outros): turnos com dono dos proximos sabados (e, para o admin,
+    dos ultimos gravados antes deles). Membro: so data depois de hoje, os
+    dele em "meus" e os dos outros em "outros"."""
     try:
         itens = aplicar(calendario(PARA_TROCAR))
+        if admin:
+            itens = _gravados_para_admin() + itens
     except ConfiguracaoInvalida:
         return [], []
     hoje = datas.hoje()
@@ -199,3 +217,9 @@ def desfazer(request, pk):
     else:
         messages.success(request, "Troca desfeita. Avise a equipe por e-mail.")
     return redirect("escala_trocas")
+
+
+@login_required
+@require_safe
+def regras(request):
+    return render(request, "escala/regras.html")

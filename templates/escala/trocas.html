@@ -22,7 +22,7 @@
                 <button type="submit" class="flex min-h-11 w-full items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-4 text-sm font-semibold text-tinta hover:bg-agua">Desfazer troca</button>
               </form>
               {% if not admin %}
-                <p class="mt-1.5 text-xs text-texto-suave">Você pode desfazer até {{ linha.ate|date:"d/m" }}. Depois, só um admin.</p>
+                <p class="mt-1.5 text-xs text-texto-suave">Você pode desfazer até {{ linha.ate|date:"d/m" }} (véspera do primeiro sábado). Depois, só um admin.</p>
               {% endif %}
             {% endif %}
           </li>

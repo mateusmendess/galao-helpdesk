@@ -66,7 +66,10 @@
           </section>
         {% endif %}
       </div>
-      <a href="{% url 'escala_trocas' %}" class="mt-4 inline-flex min-h-11 items-center font-semibold text-tinta hover:underline">Trocas registradas &rsaquo;</a>
+      <div class="mt-4 flex flex-wrap gap-x-6">
+        <a href="{% url 'escala_regras' %}" class="inline-flex min-h-11 items-center font-semibold text-tinta hover:underline">Regras da escala &rsaquo;</a>
+        <a href="{% url 'escala_trocas' %}" class="inline-flex min-h-11 items-center font-semibold text-tinta hover:underline">Trocas registradas &rsaquo;</a>
+      </div>
     {% endif %}
   {% endif %}
 </main>

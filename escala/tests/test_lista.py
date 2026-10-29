@@ -206,4 +206,4 @@ def test_titulo_e_abas_continuam_com_a_lista(client, ligada):
     nav = re.search(r'<nav aria-label="Seções do sistema".*?</nav>', html, flags=re.S)
     assert nav and 'aria-current="page"' in nav.group(0).split("Galão")[1]
     assert "Trocar de sábado" in html and "Trocas registradas" in html
-    assert "Regras da escala" not in html
+    assert f'href="{reverse("escala_regras")}"' in html
