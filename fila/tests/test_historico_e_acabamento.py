@@ -145,7 +145,7 @@ def test_voltar_no_topo_menu_e_h1_unico(client, admin_usuario, registrar, equipe
 
     assert len(re.findall(r"<h1\b", html)) == 1
     assert "Histórico de trocas</h1>" in html
-    assert re.search(r"<p [^>]*>Troca do Galão</p>", html)
+    assert re.search(r"<p [^>]*>Help Desk Equipe</p>", html)
     voltar = re.search(r'<a href="/" class="([^"]*)">&lsaquo; Voltar</a>', html)
     assert voltar and "min-h-11" in voltar.group(1).split()
     assert html.index("&lsaquo; Voltar") < html.index("Histórico de trocas</h1>")

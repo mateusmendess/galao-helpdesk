@@ -240,7 +240,10 @@ def test_aria_current_so_na_linha_da_vez(client, equipe, registrar):
 
     html = tela(client, equipe[3])
 
-    assert html.count("aria-current") == 1
+    # Fora da fila, so a aba ativa do cabecalho ("page").
+    assert html.count('aria-current="true"') == 1
+    assert html.count("aria-current") == 2
+    assert html.count('aria-current="page"') == 1
     vez = [i for i in itens(html) if 'aria-current="true"' in i]
     assert len(vez) == 1 and 'data-estado="vez"' in vez[0]
 
