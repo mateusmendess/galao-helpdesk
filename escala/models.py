@@ -1,12 +1,17 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from . import datas
 
 DATA_NAO_E_SABADO = "A data precisa ser um sábado."
 SABADO_JA_PASSOU = "Esse sábado já passou e não pode mais mudar."
 SABADO = 5  # date.weekday(): segunda = 0 ... sabado = 5
+ESCALA_JA_COMECOU = (
+    "A escala já começou: o início e o primeiro da fila não podem mais mudar."
+)
 
 
 class ConfiguracaoEscala(models.Model):
@@ -38,6 +43,14 @@ class ConfiguracaoEscala(models.Model):
             erros["primeiro"] = "Escolha uma pessoa ativa que tenha posição na escala."
         if erros:
             raise ValidationError(erros)
+        # Com um sabado ja congelado, mudar o ponto de partida reescreveria a
+        # historia: o inicio e o primeiro ficam travados.
+        if SabadoFechado.objects.exists():
+            gravada = ConfiguracaoEscala.objects.filter(pk=1).first()
+            if gravada is not None and (
+                gravada.inicio != self.inicio or gravada.primeiro_id != self.primeiro_id
+            ):
+                raise ValidationError(ESCALA_JA_COMECOU)
 
     def save(self, *args, **kwargs):
         # Uma linha so: qualquer gravacao vai para a pk=1 (e sobrescreve).
@@ -126,3 +139,56 @@ class SabadoDuasPessoas(SabadoCadastrado):
 
     def outro_cadastro(self):
         return SabadoSemEscala, "Este sábado já está cadastrado como sábado sem escala."
+
+
+class SabadoFechado(models.Model):
+    """Sabado que ja passou, gravado como a fila o escalou (nunca mais muda).
+
+    Guarda so o resultado da fila; trocas entre pessoas ficam em outro modelo.
+    """
+
+    data = models.DateField("data", unique=True)
+    manha = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="manhã",
+    )
+    tarde = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="tarde",
+    )
+    pulados = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="+",
+        verbose_name="pulados por ausência",
+    )
+    sem_escala = models.BooleanField("sem escala", default=False)
+    motivo = models.CharField(
+        "motivo", max_length=20, blank=True, choices=SabadoSemEscala.Motivo.choices
+    )
+    passa_para_proximo = models.BooleanField(
+        "passou os escalados para o próximo sábado", default=False
+    )
+    vagas = models.PositiveSmallIntegerField(
+        "vagas", validators=[MinValueValidator(1), MaxValueValidator(2)]
+    )
+    # Ordem na escala da ultima pessoa vista (escalada ou pulada); 0 = antes
+    # da primeira.
+    cursor_depois = models.PositiveIntegerField("cursor depois")
+    fechado_em = models.DateTimeField("fechado em", default=timezone.now)
+
+    class Meta:
+        verbose_name = "sábado fechado"
+        verbose_name_plural = "sábados fechados"
+        ordering = ["data"]
+
+    def __str__(self):
+        return f"{self.data:%d/%m/%Y}"
