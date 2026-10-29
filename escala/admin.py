@@ -4,6 +4,7 @@ from fila.admin import MensagensNoFeminino
 
 from .models import (
     ConfiguracaoEscala,
+    PuladoNoSabado,
     SabadoDuasPessoas,
     SabadoFechado,
     SabadoSemEscala,
@@ -55,10 +56,26 @@ class SabadoDuasPessoasAdmin(SabadoCadastradoAdmin):
     list_display = ("data",)
 
 
+class PuladoNoSabadoInline(admin.TabularInline):
+    model = PuladoNoSabado
+    extra = 0
+    verbose_name_plural = "pulados por ausência"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(SabadoFechado)
 class SabadoFechadoAdmin(admin.ModelAdmin):
     # So consulta: a fila grava sozinha os sabados que passaram.
     list_display = ("data", "manha", "tarde", "sem_escala", "vagas")
+    inlines = [PuladoNoSabadoInline]
     list_select_related = ("manha", "tarde")
     ordering = ("-data",)
 

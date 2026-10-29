@@ -22,6 +22,7 @@ from fila.models import Ausencia
 from . import datas
 from .models import (
     ConfiguracaoEscala,
+    PuladoNoSabado,
     SabadoDuasPessoas,
     SabadoFechado,
     SabadoSemEscala,
@@ -254,8 +255,10 @@ def congelar_passados():
                         vagas=dia.vagas,
                         cursor_depois=dia.cursor_depois,
                     )
-                    if dia.pulados:
-                        fechado.pulados.set(dia.pulados)
+                    PuladoNoSabado.objects.bulk_create(
+                        PuladoNoSabado(fechado=fechado, usuario_id=usuario_id)
+                        for usuario_id in dia.pulados
+                    )
         except IntegrityError:
             continue
         return len(dias)

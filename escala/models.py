@@ -165,8 +165,10 @@ class SabadoFechado(models.Model):
         related_name="+",
         verbose_name="tarde",
     )
+    # Pelo PuladoNoSabado: quem foi pulado nao pode ser apagado (PROTECT).
     pulados = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
+        through="PuladoNoSabado",
         blank=True,
         related_name="+",
         verbose_name="pulados por ausência",
@@ -193,3 +195,31 @@ class SabadoFechado(models.Model):
 
     def __str__(self):
         return f"{self.data:%d/%m/%Y}"
+
+
+class PuladoNoSabado(models.Model):
+    """Quem foi pulado por ausencia num sabado gravado."""
+
+    fechado = models.ForeignKey(
+        SabadoFechado, on_delete=models.CASCADE, verbose_name="sábado"
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name="pessoa",
+    )
+
+    class Meta:
+        verbose_name = "pulado no sábado"
+        verbose_name_plural = "pulados no sábado"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["fechado", "usuario"], name="pulado_uma_vez_por_sabado"
+            ),
+        ]
+
+    def __str__(self):
+        from fila.regras import nome_de_exibicao
+
+        return f"{nome_de_exibicao(self.usuario)} em {self.fechado}"
