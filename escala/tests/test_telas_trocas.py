@@ -67,7 +67,7 @@ def test_aba_tem_botao_e_link(client, equipe):
     html = html_de(client, equipe[0], "escala")
 
     assert f'href="{reverse("escala_trocar")}"' in html
-    assert re.search(r'href="/escala/trocas/"[^>]*>Trocas registradas ›</a>', html)
+    assert re.search(r'href="/escala/trocas/"[^>]*>Trocas registradas</a>', html)
 
 
 def test_aba_mostra_no_lugar_de_com_etiqueta(client, equipe):

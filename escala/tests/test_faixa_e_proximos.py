@@ -138,8 +138,8 @@ def test_quatro_botoes_com_a_mesma_classe(client, equipe):
     textos = {texto: set(classes.split()) for _, classes, texto in botoes}
     assert set(textos) == {
         "Ver histórico",
-        "Trocas registradas ›",
-        "Regras da escala ›",
+        "Trocas registradas",
+        "Regras da escala",
         "Ver mais sábados ›",
     }
     assert all(BOTAO <= classes for classes in textos.values())

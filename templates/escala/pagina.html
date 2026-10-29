@@ -28,6 +28,8 @@
       </div>
     {% else %}
       <div class="md:grid md:grid-cols-2 md:items-start md:gap-6">
+        {# Coluna da esquerda: o proximo sabado e, logo abaixo, os atalhos. #}
+        <div>
         <section id="proximo-sabado" class="rounded-[14px] border border-tinta bg-white p-4 text-texto ring-2 ring-agua" aria-labelledby="titulo-proximo">
           <h2 id="titulo-proximo" class="text-xs font-bold tracking-wide text-texto-suave uppercase">Próximo sábado · {{ destaque.dia.data|date:"d/m" }}</h2>
           <div class="mt-1">
@@ -48,6 +50,14 @@
           <a href="{% url 'escala_trocar' %}"
              class="mt-3 flex min-h-12 w-full items-center justify-center rounded-[10px] bg-tinta px-4 font-bold text-white hover:bg-[#093f57]">Trocar de sábado</a>
         </section>
+        {# Lado a lado, metade da linha cada; o texto quebra se faltar espaco. #}
+        <div class="mt-4 flex gap-2.5 md:max-w-[26rem]">
+          {% url 'escala_trocas' as url_trocas %}
+          {% include "_botao_secundario.html" with href=url_trocas texto="Trocas registradas" extra="min-w-0 flex-1 basis-0" %}
+          {% url 'escala_regras' as url_regras %}
+          {% include "_botao_secundario.html" with href=url_regras texto="Regras da escala" extra="min-w-0 flex-1 basis-0" %}
+        </div>
+        </div>
 
         {% if lista %}
           <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto md:mt-0" aria-labelledby="titulo-proximos">
@@ -59,13 +69,6 @@
             {% include "_botao_secundario.html" with href=url_proximos texto="Ver mais sábados ›" extra="mt-2 w-full" %}
           </section>
         {% endif %}
-      </div>
-      {# Lado a lado, metade da linha cada; o texto quebra se faltar espaco. #}
-      <div class="mt-4 flex gap-2.5 md:max-w-[26rem]">
-        {% url 'escala_trocas' as url_trocas %}
-        {% include "_botao_secundario.html" with href=url_trocas texto="Trocas registradas ›" extra="min-w-0 flex-1 basis-0" %}
-        {% url 'escala_regras' as url_regras %}
-        {% include "_botao_secundario.html" with href=url_regras texto="Regras da escala ›" extra="min-w-0 flex-1 basis-0" %}
       </div>
     {% endif %}
   {% endif %}
