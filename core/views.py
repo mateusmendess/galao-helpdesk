@@ -5,7 +5,7 @@ from django.views.decorators.http import require_safe
 
 from fila.models import Troca
 from fila.regras import (
-    AUSENTE,
+    AGUARDANDO,
     TROCOU,
     VEZ,
     ausencias_de_hoje,
@@ -27,8 +27,9 @@ def home(request):
     posicoes = situacao_da_fila(rodada, ausentes)
     vez = next((p.usuario for p in posicoes if p.estado == VEZ), None)
     # Progresso da rodada (o "nivel do galao"), das posicoes ja carregadas:
-    # presentes = quem nao esta ausente; quem ja trocou conta mesmo se ausente.
-    presentes = sum(1 for p in posicoes if p.estado != AUSENTE)
+    # presentes = quem a rodada ainda espera (trocou, vez ou aguardando); quem
+    # ja trocou conta mesmo se ausente. Pulado e ausente nao contam.
+    presentes = sum(1 for p in posicoes if p.estado in (TROCOU, VEZ, AGUARDANDO))
     trocaram = sum(1 for p in posicoes if p.estado == TROCOU)
     saldos = saldos_devendo()
     ultima = (
