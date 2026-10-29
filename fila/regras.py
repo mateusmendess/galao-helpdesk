@@ -1,4 +1,9 @@
-"""Regras da fila: rodada atual, de quem e a vez e fechamento da rodada."""
+"""Regras da fila: rodada atual, de quem e a vez e fechamento da rodada.
+
+"Sempre para a frente": a vez so anda para a frente na rodada. Quem estava
+ausente na sua vez e alguem depois dela na fila ja trocou fica PULADO: nao
+volta na mesma rodada, troca na proxima, no lugar de sempre (sem divida).
+"""
 
 from collections import Counter
 from dataclasses import dataclass
@@ -15,6 +20,7 @@ TROCOU = "trocou"
 VEZ = "vez"
 AGUARDANDO = "aguardando"
 AUSENTE = "ausente"
+PULADO = "pulado"  # volta na proxima rodada
 
 
 @dataclass(frozen=True)
@@ -107,14 +113,23 @@ def ausentes_hoje(hoje=None):
 
 
 def situacao_da_fila(rodada=None, ausentes=None):
-    """Cada pessoa da fila, na ordem, com o estado dela na rodada."""
+    """Cada pessoa da fila, na ordem, com o estado dela na rodada.
+
+    `ultimo` = maior ordem entre os titulares das trocas da rodada. Para cada
+    pessoa: trocou = TROCOU; ausente hoje = AUSENTE; presente sem trocar e com
+    ordem antes de `ultimo` = PULADO (volta na proxima rodada); das demais, a
+    primeira e a VEZ e as outras AGUARDANDO. So olha quem trocou e quem esta
+    ausente agora, nunca a data de volta.
+    """
     if ausentes is None:
         ausentes = ausentes_hoje()
     if rodada is None:
         rodada = rodada_atual(ausentes)
-    trocaram = set(
-        Troca.objects.filter(rodada=rodada).values_list("titular_id", flat=True)
+    trocas = list(
+        Troca.objects.filter(rodada=rodada).values_list("titular_id", "titular__ordem")
     )
+    trocaram = {titular for titular, _ in trocas}
+    ultimo = max((ordem for _, ordem in trocas if ordem is not None), default=None)
     posicoes = []
     vez_ja_dada = False
     for usuario in usuarios_da_fila():
@@ -122,6 +137,8 @@ def situacao_da_fila(rodada=None, ausentes=None):
             estado = TROCOU
         elif usuario in ausentes:
             estado = AUSENTE
+        elif ultimo is not None and usuario.ordem < ultimo:
+            estado = PULADO
         elif not vez_ja_dada:
             estado = VEZ
             vez_ja_dada = True
@@ -132,7 +149,8 @@ def situacao_da_fila(rodada=None, ausentes=None):
 
 
 def de_quem_e_a_vez(rodada=None, ausentes=None):
-    """O primeiro da fila que nao trocou e nao esta ausente, ou None."""
+    """A pessoa em VEZ: a primeira presente, sem trocar, depois do ultimo
+    titular que trocou na rodada (ou a primeira da fila); None se ninguem."""
     for posicao in situacao_da_fila(rodada, ausentes):
         if posicao.estado == VEZ:
             return posicao.usuario
@@ -140,7 +158,10 @@ def de_quem_e_a_vez(rodada=None, ausentes=None):
 
 
 def fechar_rodada_se_completa(rodada, ausentes=None):
-    """Fecha a rodada e abre a proxima se todos os presentes ja trocaram.
+    """Fecha a rodada e abre a proxima quando nenhum presente esta na VEZ ou
+    AGUARDANDO (todos os presentes trocaram ou foram pulados).
+
+    Sem presentes, nao fecha; sem nenhuma troca, sempre ha alguem na VEZ.
 
     Devolve True se fechou. Trava a linha da rodada (no PostgreSQL; no SQLite
     o select_for_update nao faz nada e a escrita ja e serializada), entao duas
@@ -152,11 +173,10 @@ def fechar_rodada_se_completa(rodada, ausentes=None):
         rodada = Rodada.objects.select_for_update().get(pk=rodada.pk)
         if rodada.fechada_em is not None:
             return False
-        presentes = [u for u in usuarios_da_fila() if u not in ausentes]
-        if not presentes:
+        posicoes = situacao_da_fila(rodada, ausentes)
+        if not any(p.usuario not in ausentes for p in posicoes):
             return False
-        trocaram = set(rodada.trocas.values_list("titular_id", flat=True))
-        if any(u.pk not in trocaram for u in presentes):
+        if any(p.estado in (VEZ, AGUARDANDO) for p in posicoes):
             return False
         rodada.fechada_em = timezone.now()
         rodada.save(update_fields=["fechada_em"])
