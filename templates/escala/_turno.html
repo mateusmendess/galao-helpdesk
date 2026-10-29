@@ -4,7 +4,12 @@
     <p class="font-bold">{{ rotulo }}</p>
     <p class="text-xs text-texto-suave">{{ horario }}</p>
   </div>
-  <p class="min-w-0 text-right wrap-anywhere">
-    {% if turno.nome %}{{ turno.nome }}{% if turno.voce %} <span class="whitespace-nowrap rounded-full bg-agua px-2 py-0.5 text-xs font-semibold text-tinta">você</span>{% endif %}{% else %}<span class="text-sm text-texto-suave">{{ vazio }}</span>{% endif %}
-  </p>
+  <div class="min-w-0 text-right">
+    <p class="wrap-anywhere">
+      {% if turno.nome %}{{ turno.nome }}{% if turno.voce %} <span class="whitespace-nowrap rounded-full bg-agua px-2 py-0.5 text-xs font-semibold text-tinta">você</span>{% endif %}{% else %}<span class="text-sm text-texto-suave">{{ vazio }}</span>{% endif %}
+    </p>
+    {% if turno.no_lugar_de %}
+      <p class="mt-0.5 text-xs text-texto-suave wrap-anywhere">no lugar de {{ turno.no_lugar_de }} <span class="shrink-0 rounded-full border border-[#e3b878] bg-aviso-fundo px-2.5 py-0.5 text-xs font-semibold text-aviso">troca</span></p>
+    {% endif %}
+  </div>
 </div>

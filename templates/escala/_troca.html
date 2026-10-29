@@ -1,0 +1,15 @@
+{# Uma troca: "Ana ⇄ Gil / 09/01 ⇄ 16/01", quem registrou e a situacao. #}
+<div class="flex items-center justify-between gap-2">
+  <div class="min-w-0">
+    <p class="text-[15px] font-bold wrap-anywhere">{{ linha.troca.pessoa_a.first_name|default:linha.troca.pessoa_a.email }} ⇄ {{ linha.troca.pessoa_b.first_name|default:linha.troca.pessoa_b.email }}</p>
+    <p class="text-[13px] text-texto-suave">{{ linha.troca.data_a|date:"d/m" }} ⇄ {{ linha.troca.data_b|date:"d/m" }}</p>
+    <p class="mt-0.5 text-xs text-texto-suave wrap-anywhere">{% if linha.troca.tipo == "emergencia" %}emergência · {% endif %}registrada por {{ linha.troca.registrada_por.first_name|default:linha.troca.registrada_por.email }}, {{ linha.troca.registrada_em|date:"d/m" }} às {{ linha.troca.registrada_em|date:"H:i" }}{% if linha.troca.desfeita_em %} · desfeita por {{ linha.troca.desfeita_por.first_name|default:linha.troca.desfeita_por.email }}, {{ linha.troca.desfeita_em|date:"d/m" }}{% endif %}</p>
+  </div>
+  {% if linha.situacao == "ativa" %}
+    <span class="shrink-0 rounded-full border border-[#e3b878] bg-aviso-fundo px-2.5 py-0.5 text-xs font-semibold text-aviso">ativa</span>
+  {% elif linha.situacao == "feita" %}
+    <span class="shrink-0 rounded-full bg-ok-fundo px-2.5 py-0.5 text-xs font-semibold text-ok">feita</span>
+  {% else %}
+    <span class="shrink-0 rounded-full border border-borda bg-fundo px-2.5 py-0.5 text-xs font-semibold text-ausente">desfeita</span>
+  {% endif %}
+</div>
