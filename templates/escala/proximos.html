@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Próximos sábados · Help Desk Equipe{% endblock %}
+
+{% block cabecalho %}{% include "_cabecalho.html" with marca_p=True %}{% endblock %}
+
+{% block content %}
+<main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-xl">
+  <a href="{% url 'escala' %}" class="-ml-1 inline-flex min-h-11 items-center px-1 font-semibold text-tinta hover:underline">&lsaquo; Voltar</a>
+  <h1 class="text-2xl font-extrabold">Próximos sábados</h1>
+
+  <p class="mt-3 rounded-[14px] border border-borda bg-white p-4 text-texto">Os sábados mais distantes são <span class="font-bold">previsão</span>: podem mudar com ausências, sábados sem escala e trocas.</p>
+
+  <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto" aria-label="Próximos sábados">
+    <ul>
+      {% for linha in linhas %}{% include "escala/_sabado.html" %}{% endfor %}
+    </ul>
+  </section>
+</main>
+{% endblock %}

@@ -2,11 +2,13 @@
 {# Parametros do include: marca_p=True quando a pagina tem o proprio <h1>;     #}
 {# sem_menu=True nas telas de senha (sem menu, sem links);                     #}
 {# aba="galao" ou "escala" mostra as abas das secoes (so na home e na escala). #}
-<header class="border-b border-borda bg-white">
+{# Faixa azul (tinta) com texto branco; as abas ficam brancas, embaixo.        #}
+<header>
+  <div class="bg-tinta text-white">
   <div class="mx-auto flex w-full max-w-md items-center gap-3 px-4 py-2 md:max-w-4xl">
     <svg class="h-7 w-7 shrink-0" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M12 3h8v3l2 2v3c3 1.5 4 4 4 7v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9c0-3 1-5.5 4-7V8l2-2z" fill="none" stroke="#0B4F6C" stroke-width="2" stroke-linejoin="round"/>
-      <path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#0B4F6C"/>
+      <path d="M12 3h8v3l2 2v3c3 1.5 4 4 4 7v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9c0-3 1-5.5 4-7V8l2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#E3F2F7"/>
     </svg>
     <div class="min-w-0 flex-1">
       {% if marca_p %}
@@ -20,8 +22,9 @@
     {% endif %}
     {% if not sem_menu %}
     <details class="relative shrink-0">
-      <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-[10px] border border-borda bg-white hover:bg-fundo [&::-webkit-details-marker]:hidden" aria-label="Menu da conta">
-        <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="#14232B" stroke-width="2" stroke-linecap="round"/></svg>
+      {# Sobre o azul, o foco usa o contorno branco (o global e na tinta). #}
+      <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-[10px] border border-white/45 hover:bg-white/10 focus-visible:outline-white [&::-webkit-details-marker]:hidden" aria-label="Menu da conta">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/></svg>
       </summary>
       <div class="absolute right-0 z-10 mt-2 w-60 rounded-xl border border-borda bg-white p-1 shadow-lg">
         <a href="{% url 'password_change' %}" class="flex min-h-11 items-center rounded-lg px-3 font-medium text-tinta hover:bg-agua">Trocar senha</a>
@@ -36,7 +39,9 @@
     </details>
     {% endif %}
   </div>
+  </div>
   {% if aba %}
+  <div class="border-b border-borda bg-white">
   <div class="mx-auto w-full max-w-md px-4 md:max-w-4xl">
     <nav aria-label="Seções do sistema" class="flex md:max-w-[26rem]">
       <a href="{% url 'home' %}"{% if aba == "galao" %} aria-current="page"{% endif %}
@@ -44,6 +49,7 @@
       <a href="{% url 'escala' %}"{% if aba == "escala" %} aria-current="page"{% endif %}
          class="flex min-h-12 flex-1 items-center justify-center border-b-[3px] text-[15px] {% if aba == "escala" %}border-tinta font-bold text-tinta{% else %}border-transparent font-medium text-texto-suave hover:bg-fundo{% endif %}">Escala de sábado</a>
     </nav>
+  </div>
   </div>
   {% endif %}
 </header>

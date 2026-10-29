@@ -27,15 +27,16 @@ from .trocas import (
     ultimo_dia_para_desfazer,
 )
 
-QUANTOS = 9  # destaque + 6 na lista + 2 no "Ver mais"
+QUANTOS = 7  # destaque + 6 na lista
 NA_LISTA = 6
+PROXIMOS = 26  # sabados da pagina "Proximos sabados"
 PARA_TROCAR = 12  # sabados oferecidos em "Trocar de sabado"
 GRAVADOS_PARA_ADMIN = 8  # sabados ja gravados que o admin tambem ve
 TROCAS_POR_PAGINA = 30
 MOTIVOS = dict(SabadoSemEscala.Motivo.choices)
 
 
-def _linha(item, trocas_na_observacao=True):
+def _linha(item, trocas_na_observacao=True, eu=None):
     """Textos de um sabado da lista: nomes, observacoes e etiquetas. No
     destaque o "no lugar de" fica na linha do turno, nao na observacao."""
     dia = item.dia
@@ -60,7 +61,19 @@ def _linha(item, trocas_na_observacao=True):
     if dia.pulados:
         pulados = ", ".join(nome_de_exibicao(u) for u in dia.pulados)
         observacoes.append(f"Ausente, pulado: {pulados}")
-    return {"dia": dia, "nomes": nomes, "observacoes": observacoes, "item": item}
+    # Com `eu`, cada nome leva se e a pessoa logada (etiqueta "voce").
+    pessoas = [
+        {"nome": nome_de_exibicao(u), "voce": eu is not None and u.pk == eu.pk}
+        for u in (dia.manha, dia.tarde)
+        if u and not dia.sem_escala
+    ]
+    return {
+        "dia": dia,
+        "nomes": nomes,
+        "pessoas": pessoas if eu is not None else [],
+        "observacoes": observacoes,
+        "item": item,
+    }
 
 
 def _turno(item, turno, eu):
@@ -93,7 +106,6 @@ def pagina(request):
                     "tarde": _turno(destaque, "tarde", request.user),
                 }
                 contexto["lista"] = [_linha(i) for i in itens[1 : 1 + NA_LISTA]]
-                contexto["mais"] = [_linha(i) for i in itens[1 + NA_LISTA :]]
             contexto["vazio"] = not itens
     return render(request, "escala/pagina.html", contexto)
 
@@ -108,6 +120,21 @@ def _gravados_para_admin():
         .values_list("data", flat=True)[:GRAVADOS_PARA_ADMIN]
     )
     return sorted(sabados_em(datas_gravadas).values(), key=lambda i: i.dia.data)
+
+
+@login_required
+@require_safe
+def proximos(request):
+    """Os proximos 26 sabados (previsao), com a etiqueta "voce"."""
+    try:
+        itens = aplicar(calendario(PROXIMOS))
+    except ConfiguracaoInvalida:
+        itens = []
+    if not itens:
+        # Sem configuracao (lista vazia) ou invalida: a aba mostra a mensagem.
+        return redirect("escala")
+    linhas = [_linha(item, eu=request.user) for item in itens]
+    return render(request, "escala/proximos.html", {"linhas": linhas})
 
 
 def _opcoes(usuario, admin):

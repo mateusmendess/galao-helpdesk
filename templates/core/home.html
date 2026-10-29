@@ -65,7 +65,7 @@
   {% endif %}
 
   {# No computador fica embaixo do cartao da vez; no celular, depois da fila. #}
-  <a href="{% url 'historico' %}"
-     class="mt-6 flex min-h-12 w-full items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-4 font-semibold text-tinta hover:bg-agua md:col-start-1 md:mt-4">Ver histórico</a>
+  {% url 'historico' as url_historico %}
+  {% include "_botao_secundario.html" with href=url_historico texto="Ver histórico" extra="mt-6 w-full md:col-start-1 md:mt-4" %}
 </main>
 {% endblock %}

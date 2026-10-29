@@ -60,17 +60,19 @@ def linhas(html):
     return [texto(li) for li in re.findall(r"<li\b.*?</li>", html, flags=re.S)]
 
 
-def test_destaque_mais_6_e_ver_mais_com_2(client, ligada):
+def test_destaque_mais_6_e_botao_ver_mais_sabados(client, ligada):
     html = pagina(client, ligada[0])
 
     assert texto(destaque(html)).startswith("Próximo sábado · 05/12")
-    principal = html[: html.index("<details")]
-    mais = html[html.index("<details") : html.index("</details>")]
-    assert [li.split()[0] for li in linhas(principal)] == [
+    assert [li.split()[0] for li in linhas(html)] == [
         f"{s(k):%d/%m}" for k in range(1, 7)
     ]
-    assert [li.split()[0] for li in linhas(mais)] == [f"{s(7):%d/%m}", f"{s(8):%d/%m}"]
-    assert re.search(r"<summary [^>]*min-h-11[^>]*>Ver mais \(2\)</summary>", html)
+    assert "<details" not in html and "Ver mais (" not in html
+    assert re.search(
+        rf'<a href="{reverse("escala_proximos")}" class="botao-secundario [^"]*">'
+        r"Ver mais sábados ›</a>",
+        html,
+    )
 
 
 def test_destaque_com_voce_e_turnos(client, ligada):
@@ -160,13 +162,13 @@ def test_pulados_na_observacao(client, ligada):
     assert lista[1] == f"{s(2):%d/%m} Pessoa 4 Ausente, pulado: Pessoa 3"
 
 
-def test_menos_sabados_sem_ver_mais(client, ligada):
+def test_menos_sabados_mostra_o_que_ha_e_o_botao(client, ligada):
     poucos = [Dia(data=s(k), manha=ligada[k]) for k in range(4)]
     with mock.patch("escala.views.calendario", return_value=poucos):
         html = pagina(client, ligada[0])
 
     assert len(linhas(html)) == 3
-    assert "<details" not in html and "Ver mais" not in html
+    assert "<details" not in html and "Ver mais sábados ›" in html
 
 
 def test_so_o_destaque_sem_lista(client, ligada):

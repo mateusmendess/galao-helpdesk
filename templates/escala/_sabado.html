@@ -1,8 +1,13 @@
-{# Um sabado da lista "Proximos sabados". #}
+{# Um sabado da lista "Proximos sabados". Com linha.pessoas (pagina dos     #}
+{# proximos sabados), cada nome vem com a etiqueta "voce" da pessoa logada. #}
 <li class="flex items-center justify-between gap-2 border-t border-borda py-2.5 first:border-t-0">
   <div class="min-w-0">
     <p class="text-[15px] font-bold">{{ linha.dia.data|date:"d/m" }}</p>
-    <p class="text-[13px] text-texto-suave wrap-anywhere">{{ linha.nomes }}</p>
+    {% if linha.pessoas %}
+      <p class="text-[13px] text-texto-suave wrap-anywhere">{% for pessoa in linha.pessoas %}{% if not forloop.first %} e {% endif %}{{ pessoa.nome }}{% if pessoa.voce %} <span class="whitespace-nowrap rounded-full bg-agua px-2 py-0.5 text-xs font-semibold text-tinta">você</span>{% endif %}{% endfor %}</p>
+    {% else %}
+      <p class="text-[13px] text-texto-suave wrap-anywhere">{{ linha.nomes }}</p>
+    {% endif %}
     {% for observacao in linha.observacoes %}
       <p class="mt-0.5 text-xs text-texto-suave wrap-anywhere">{{ observacao }}</p>
     {% endfor %}

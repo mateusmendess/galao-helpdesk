@@ -55,20 +55,17 @@
             <ul class="mt-1">
               {% for linha in lista %}{% include "escala/_sabado.html" %}{% endfor %}
             </ul>
-            {% if mais %}
-              <details class="mt-2">
-                <summary class="flex min-h-11 cursor-pointer list-none items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-4 text-sm font-semibold text-tinta hover:bg-agua [&::-webkit-details-marker]:hidden">Ver mais ({{ mais|length }})</summary>
-                <ul class="mt-1">
-                  {% for linha in mais %}{% include "escala/_sabado.html" %}{% endfor %}
-                </ul>
-              </details>
-            {% endif %}
+            {% url 'escala_proximos' as url_proximos %}
+            {% include "_botao_secundario.html" with href=url_proximos texto="Ver mais sábados ›" extra="mt-2 w-full" %}
           </section>
         {% endif %}
       </div>
-      <div class="mt-4 flex flex-wrap gap-x-6">
-        <a href="{% url 'escala_regras' %}" class="inline-flex min-h-11 items-center font-semibold text-tinta hover:underline">Regras da escala &rsaquo;</a>
-        <a href="{% url 'escala_trocas' %}" class="inline-flex min-h-11 items-center font-semibold text-tinta hover:underline">Trocas registradas &rsaquo;</a>
+      {# Lado a lado, metade da linha cada; o texto quebra se faltar espaco. #}
+      <div class="mt-4 flex gap-2.5 md:max-w-[26rem]">
+        {% url 'escala_trocas' as url_trocas %}
+        {% include "_botao_secundario.html" with href=url_trocas texto="Trocas registradas ›" extra="min-w-0 flex-1 basis-0" %}
+        {% url 'escala_regras' as url_regras %}
+        {% include "_botao_secundario.html" with href=url_regras texto="Regras da escala ›" extra="min-w-0 flex-1 basis-0" %}
       </div>
     {% endif %}
   {% endif %}
