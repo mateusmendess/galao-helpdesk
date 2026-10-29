@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Escala de sábado · Help Desk Equipe{% endblock %}
+
+{% block cabecalho %}{% include "_cabecalho.html" with aba="escala" %}{% endblock %}
+
+{% block content %}
+<main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-4xl">
+  <div class="rounded-[14px] border border-borda bg-white p-4 text-texto">
+    {% if configuracao is None %}
+      <p class="font-bold">A escala de sábado ainda não foi ligada.</p>
+      <p class="mt-1">Por enquanto a equipe segue a planilha. Quando o admin ligar a escala, os sábados aparecem aqui.</p>
+    {% elif not comecou %}
+      <p class="font-bold">A escala começa em {{ configuracao.inicio|date:"d/m/Y" }}.</p>
+      <p class="mt-1">Até lá vale a planilha. A lista dos sábados aparece aqui a partir dessa data.</p>
+    {% else %}
+      <p class="font-bold">A escala de sábado está ligada.</p>
+      <p class="mt-1">A lista dos sábados aparece aqui em breve.</p>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

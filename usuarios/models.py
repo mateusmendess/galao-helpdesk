@@ -47,6 +47,18 @@ class Usuario(AbstractUser):
         blank=True,
         validators=[MinValueValidator(1)],
     )
+    # Posicao no rodizio dos sabados; a fila do galao continua em `ordem`.
+    ordem_escala = models.PositiveIntegerField(
+        "posição na escala de sábado",
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+        help_text=(
+            "Posição no rodízio dos sábados. "
+            "Deixe em branco se a pessoa não entra na escala."
+        ),
+    )
     # Ligada pelo admin ao criar a conta com senha provisoria; so a tela
     # "Trocar senha" desliga.
     precisa_trocar_senha = models.BooleanField(

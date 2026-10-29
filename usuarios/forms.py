@@ -15,7 +15,13 @@ class UsuarioCriacaoForm(AdminUserCreationForm):
 
     class Meta:
         model = Usuario
-        fields = ("email", "first_name", "ordem", "precisa_trocar_senha")
+        fields = (
+            "email",
+            "first_name",
+            "ordem",
+            "ordem_escala",
+            "precisa_trocar_senha",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
