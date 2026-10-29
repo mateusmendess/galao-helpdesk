@@ -75,26 +75,23 @@ def test_sem_configuracao(client, membro, hoje):
     )
 
 
-def test_antes_do_inicio_mostra_a_data(client, membro, hoje, configurada):
+def test_antes_do_inicio_mostra_a_data_e_a_lista(client, membro, hoje, configurada):
     hoje(SABADO - timedelta(days=1))
 
     texto = texto_do_cartao(client, membro)
 
-    assert texto == (
-        "A escala começa em 05/12/2026. Até lá vale a planilha. "
-        "A lista dos sábados aparece aqui a partir dessa data."
-    )
+    assert texto.startswith("A escala começa em 05/12/2026. Até lá vale a planilha. ")
+    assert "Próximo sábado · 05/12" in texto
 
 
 @pytest.mark.parametrize("dia", [SABADO, date(2027, 1, 20)])
-def test_no_inicio_ou_depois_esta_ligada(client, membro, hoje, configurada, dia):
+def test_no_inicio_ou_depois_so_a_lista(client, membro, hoje, configurada, dia):
     hoje(dia)
 
     texto = texto_do_cartao(client, membro)
 
-    assert texto == (
-        "A escala de sábado está ligada. A lista dos sábados aparece aqui em breve."
-    )
+    assert texto.startswith("Próximo sábado · ")
+    assert "A escala começa" not in texto and "planilha" not in texto
 
 
 def test_um_cartao_sem_botao_nem_link(client, membro, hoje):
