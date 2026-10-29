@@ -29,11 +29,50 @@
         </div>
       {% endfor %}
 
-      <p class="text-sm text-texto-suave">Combine antes com a outra pessoa e avise a equipe por e-mail (regras 7.1 e 8). A fila de cada um não muda. Só vale para sábados que ainda não passaram. Em emergência ou troca definitiva, fale com um admin (regras 7.2 e 7.4).</p>
+      {# Preenchida pelo script abaixo quando os dois sabados estao escolhidos. #}
+      <p id="frase-da-troca" class="rounded-[10px] border border-[#bfe0ea] bg-agua px-3 py-2.5 text-sm text-tinta wrap-anywhere" aria-live="polite" hidden></p>
+
+      <p class="text-sm text-texto-suave">Combine antes com a outra pessoa e avise a equipe por e-mail (regras 7.1 e 8). A fila de cada um não muda. Só vale para sábados que ainda não passaram. Em emergência ou troca definitiva, fale com um admin (regras 7.2 e 7.4). <a href="{% url 'escala_regras' %}" class="font-semibold text-tinta underline">Regras da escala</a></p>
 
       <button type="submit"
               class="flex min-h-[52px] w-full items-center justify-center rounded-[10px] bg-tinta px-4 text-[17px] font-bold text-white hover:bg-[#093f57]">Registrar troca</button>
     </form>
   {% endif %}
 </main>
+
+<script>
+  // Melhoria progressiva: sem este script o formulario envia e o servidor
+  // confere igual. Rotulo das opcoes: "DD/MM · turno · Nome".
+  (function () {
+    var meu = document.querySelector('select[name="meu"]');
+    var outro = document.querySelector('select[name="outro"]');
+    var frase = document.getElementById("frase-da-troca");
+    if (!meu || !outro || !frase) { return; }
+    function partes(opcao) {
+      var p = opcao.textContent.split(" · ");
+      return { data: p[0], turno: p[1], nome: p.slice(2).join(" · ") };
+    }
+    function dataDe(opcao) { return opcao.value.split("|")[0]; }
+    // Desabilita na outra lista as opcoes com a mesma data da escolhida.
+    function filtrar(origem, alvo) {
+      var data = origem.value ? dataDe(origem.options[origem.selectedIndex]) : "";
+      Array.prototype.forEach.call(alvo.options, function (opcao) {
+        opcao.disabled = Boolean(opcao.value) && Boolean(data) && dataDe(opcao) === data;
+      });
+      if (alvo.selectedIndex > 0 && alvo.options[alvo.selectedIndex].disabled) { alvo.value = ""; }
+    }
+    function atualizar(origem) {
+      if (origem === meu) { filtrar(meu, outro); } else { filtrar(outro, meu); }
+      if (!meu.value || !outro.value) { frase.hidden = true; frase.textContent = ""; return; }
+      var a = partes(meu.options[meu.selectedIndex]);
+      var b = partes(outro.options[outro.selectedIndex]);
+      frase.textContent = "Depois da troca: " + a.data + " (" + a.turno + ") fica com " + b.nome +
+        " e " + b.data + " (" + b.turno + ") fica com " + a.nome + ".";
+      frase.hidden = false;
+    }
+    meu.addEventListener("change", function () { atualizar(meu); });
+    outro.addEventListener("change", function () { atualizar(outro); });
+    window.addEventListener("pageshow", function () { filtrar(meu, outro); filtrar(outro, meu); atualizar(meu); });
+  })();
+</script>
 {% endblock %}
