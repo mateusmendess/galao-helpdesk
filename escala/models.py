@@ -65,8 +65,8 @@ class ConfiguracaoEscala(models.Model):
 
 
 class SabadoCadastrado(models.Model):
-    """Base dos sabados cadastrados pelo admin: so sabado, de hoje em diante,
-    e a mesma data nao pode estar nos dois cadastros."""
+    """Base dos sabados cadastrados pelo admin: so sabado que ainda nao
+    terminou, e a mesma data nao pode estar nos dois cadastros."""
 
     data = models.DateField("data", unique=True)
 
@@ -82,7 +82,8 @@ class SabadoCadastrado(models.Model):
         raise NotImplementedError
 
     def ja_passou(self):
-        return self.data < datas.hoje()
+        # Terminou = depois das 17h do proprio sabado.
+        return datas.sabado_terminou(self.data)
 
     def clean(self):
         super().clean()

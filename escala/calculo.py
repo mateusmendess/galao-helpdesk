@@ -190,6 +190,16 @@ def _sabados(primeiro, ate_antes_de):
     return sabados
 
 
+def _terminados(primeiro):
+    """Sabados de `primeiro` em diante que ja terminaram (17h)."""
+    sabados = []
+    data = primeiro
+    while datas.sabado_terminou(data):
+        sabados.append(data)
+        data += SEMANA
+    return sabados
+
+
 def _projetar_do_banco(fila, cursor, sabados):
     """projetar() com as ausencias e os cadastros do periodo (uma consulta
     para cada, qualquer que seja a quantidade de sabados)."""
@@ -216,20 +226,19 @@ def _projetar_do_banco(fila, cursor, sabados):
 
 
 def congelar_passados():
-    """Grava os sabados que ja passaram (data menor que hoje) e ainda nao
+    """Grava os sabados que ja terminaram (17h do proprio sabado) e ainda nao
     foram gravados, com os dados de agora. Devolve quantos gravou.
 
-    Idempotente. Hoje e o futuro nunca sao gravados. Se outro processo gravar
+    Idempotente. Sabado nao terminado nunca e gravado. Se outro processo gravar
     uma das datas antes (data unica), desfaz o lote, rele e tenta de novo.
     """
     config = ConfiguracaoEscala.obter()
-    hoje = datas.hoje()
-    if config is None or hoje <= config.inicio:
+    if config is None or not datas.sabado_terminou(config.inicio):
         return 0
     for _ in range(TENTATIVAS):
         fila = _fila()
         cursor, proximo = estado_atual(config, fila)
-        dias = _projetar_do_banco(fila, cursor, _sabados(proximo, hoje))
+        dias = _projetar_do_banco(fila, cursor, _terminados(proximo))
         if not dias:
             return 0
         try:
@@ -254,16 +263,15 @@ def congelar_passados():
 
 
 def calendario(quantidade):
-    """Os proximos `quantidade` sabados a partir de max(hoje, inicio) (hoje
-    entra se for sabado), com objetos Usuario em manha, tarde e pulados.
+    """Os proximos `quantidade` sabados a partir do primeiro nao terminado (o
+    de hoje entra ate as 17h) e do inicio, com objetos Usuario em manha,
+    tarde e pulados.
     Lista vazia sem configuracao. Numero fixo de consultas."""
     congelar_passados()
     config = ConfiguracaoEscala.obter()
     if config is None or quantidade <= 0:
         return []
-    desde = max(datas.hoje(), config.inicio)
-    # Primeiro sabado de `desde` em diante.
-    alvo = desde + timedelta(days=(5 - desde.weekday()) % 7)
+    alvo = max(datas.primeiro_sabado_aberto(), config.inicio)
     fila = _fila()
     cursor, proximo = estado_atual(config, fila)
     dias = _projetar_do_banco(
