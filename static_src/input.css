@@ -28,3 +28,24 @@
     outline-offset: 2px;
   }
 }
+
+/* Pagina publica: o galao anda pela fila A a G (14s por volta) e pula a C.  */
+/* --u e o passo de uma pessoa, definido na propria fila. Cada pessoa acende */
+/* (fila-fN) quando o galao passa por ela. Sem movimento: classes motion-reduce. */
+@keyframes fila-anda {
+  0%, 12% { transform: translateX(0); opacity: 1; }
+  16.5%, 28.6% { transform: translateX(calc(var(--u) * 1)); }
+  32%, 42.9% { transform: translateX(calc(var(--u) * 3)); }
+  46%, 57.1% { transform: translateX(calc(var(--u) * 4)); }
+  60.5%, 71.4% { transform: translateX(calc(var(--u) * 5)); }
+  75%, 85.7% { transform: translateX(calc(var(--u) * 6)); }
+  90% { transform: translateX(calc(var(--u) * 6)); opacity: 0; }
+  91% { transform: translateX(0); opacity: 0; }
+  96%, 100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes fila-f1 { 0%, 14% { opacity: 0; } 16%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes fila-f2 { 0%, 28% { opacity: 0; } 30%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes fila-f4 { 0%, 43% { opacity: 0; } 45%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes fila-f5 { 0%, 57% { opacity: 0; } 59%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes fila-f6 { 0%, 71% { opacity: 0; } 73%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes fila-f7 { 0%, 85.7% { opacity: 0; } 88%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
