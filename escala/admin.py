@@ -1,4 +1,5 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 
 from fila.admin import MensagensNoFeminino
 
@@ -8,7 +9,9 @@ from .models import (
     SabadoDuasPessoas,
     SabadoFechado,
     SabadoSemEscala,
+    TrocaSabado,
 )
+from .trocas import desfazer_troca, situacao
 
 
 @admin.register(ConfiguracaoEscala)
@@ -87,3 +90,53 @@ class SabadoFechadoAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(TrocaSabado)
+class TrocaSabadoAdmin(MensagensNoFeminino, admin.ModelAdmin):
+    # So consulta; a unica mudanca e desfazer (a troca nunca se apaga).
+    list_display = (
+        "data_a",
+        "data_b",
+        "pessoa_a",
+        "pessoa_b",
+        "tipo",
+        "situacao_da_troca",
+        "registrada_por",
+    )
+    list_select_related = ("pessoa_a", "pessoa_b", "registrada_por", "desfeita_por")
+    actions = ["desfazer_selecionadas"]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="situação")
+    def situacao_da_troca(self, obj):
+        return situacao(obj)
+
+    @admin.action(description="Desfazer trocas selecionadas")
+    def desfazer_selecionadas(self, request, queryset):
+        # Da mais recente para a mais antiga: a regra pede desfazer antes a
+        # troca mais recente que mexe no mesmo sabado.
+        desfeitas = 0
+        for troca in queryset.order_by("-id"):
+            try:
+                desfazer_troca(troca, request.user)
+            except ValidationError as erro:
+                self.message_user(
+                    request,
+                    f"Troca {troca} não foi desfeita: {' '.join(erro.messages)}",
+                    messages.ERROR,
+                )
+            else:
+                desfeitas += 1
+        if desfeitas:
+            self.message_user(
+                request, f"Trocas desfeitas: {desfeitas}.", messages.SUCCESS
+            )
