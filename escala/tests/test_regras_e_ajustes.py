@@ -127,9 +127,9 @@ def test_links_para_as_regras(client, equipe):
     trocar = client.get(reverse("escala_trocar")).content.decode()
 
     link = f'<a href="{reverse("escala_regras")}"'
-    assert re.search(rf"{re.escape(link)}[^>]*>Regras da escala ›</a>", aba)
+    assert re.search(rf"{re.escape(link)}[^>]*>Regras da escala</a>", aba)
     # Lado a lado, como na previa: "Trocas registradas" e depois "Regras".
-    assert aba.index("Trocas registradas ›") < aba.index("Regras da escala ›")
+    assert aba.index("Trocas registradas</a>") < aba.index("Regras da escala</a>")
     assert re.search(
         rf"\(regras 7.2 e 7.4\)\. {re.escape(link)}[^>]*>Regras da escala</a></p>",
         trocar,

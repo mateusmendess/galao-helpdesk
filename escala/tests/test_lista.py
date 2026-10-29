@@ -60,6 +60,18 @@ def linhas(html):
     return [texto(li) for li in re.findall(r"<li\b.*?</li>", html, flags=re.S)]
 
 
+def test_atalhos_logo_abaixo_do_proximo_sabado(client, ligada):
+    html = pagina(client, ligada[0])
+
+    fim_do_destaque = html.index("</section>", html.index('id="proximo-sabado"'))
+    trocas = html.index(">Trocas registradas</a>")
+    regras = html.index(">Regras da escala</a>")
+    lista = html.index("Próximos sábados")
+    assert fim_do_destaque < trocas < regras < lista
+    assert lista < html.index("Ver mais sábados ›</a>")
+    assert "Trocas registradas ›" not in html and "Regras da escala ›" not in html
+
+
 def test_destaque_mais_6_e_botao_ver_mais_sabados(client, ligada):
     html = pagina(client, ligada[0])
 
