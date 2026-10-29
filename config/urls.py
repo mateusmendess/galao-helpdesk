@@ -28,6 +28,7 @@ urlpatterns = [
     path("escala/", escala_views.pagina, name="escala"),
     path("escala/trocar/", escala_views.trocar, name="escala_trocar"),
     path("escala/regras/", escala_views.regras, name="escala_regras"),
+    path("escala/proximos/", escala_views.proximos, name="escala_proximos"),
     path("escala/trocas/", escala_views.trocas, name="escala_trocas"),
     path(
         "escala/trocas/<int:pk>/desfazer/",
