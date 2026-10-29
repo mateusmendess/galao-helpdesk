@@ -78,7 +78,7 @@ def test_destaque_com_voce_e_turnos(client, ligada):
 
     assert texto(html) == (
         "Próximo sábado · 05/12 Manhã 08h às 12h Pessoa 1 você "
-        "Tarde 13h às 17h sem escala de tarde"
+        "Tarde 13h às 17h sem escala de tarde Trocar de sábado"
     )
     assert re.search(
         r'<span class="[^"]*bg-agua[^"]*text-tinta[^"]*">você</span>', html
@@ -105,7 +105,7 @@ def test_sabado_com_2_pessoas(client, ligada):
 
     assert texto(destaque(html)) == (
         "Próximo sábado · 05/12 Manhã 08h às 12h Pessoa 1 você "
-        "Tarde 13h às 17h Pessoa 2"
+        "Tarde 13h às 17h Pessoa 2 Trocar de sábado"
     )
     assert linhas(html)[0] == f"{s(1):%d/%m} Pessoa 3 e Pessoa 4 2 pessoas"
     assert re.search(r'<span class="[^"]*bg-ok-fundo[^"]*text-ok[^"]*">2 pessoas', html)
@@ -205,4 +205,5 @@ def test_titulo_e_abas_continuam_com_a_lista(client, ligada):
     assert "<title>Escala de sábado · Help Desk Equipe</title>" in html
     nav = re.search(r'<nav aria-label="Seções do sistema".*?</nav>', html, flags=re.S)
     assert nav and 'aria-current="page"' in nav.group(0).split("Galão")[1]
-    assert "Trocar de sábado" not in html and "Regras da escala" not in html
+    assert "Trocar de sábado" in html and "Trocas registradas" in html
+    assert "Regras da escala" not in html

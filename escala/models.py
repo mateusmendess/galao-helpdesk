@@ -223,3 +223,77 @@ class PuladoNoSabado(models.Model):
         from fila.regras import nome_de_exibicao
 
         return f"{nome_de_exibicao(self.usuario)} em {self.fechado}"
+
+
+class TrocaSabado(models.Model):
+    """Duas pessoas trocam turnos de sabado (a fila nao muda).
+
+    Efeito: (data_a, turno_a) passa a ser de pessoa_b e (data_b, turno_b)
+    passa a ser de pessoa_a. Ativa = desfeita_em vazio. Nunca se apaga.
+    """
+
+    class Turno(models.TextChoices):
+        MANHA = "manha", "manhã"
+        TARDE = "tarde", "tarde"
+
+    class Tipo(models.TextChoices):
+        COMBINADA = "combinada", "Combinada"
+        EMERGENCIA = "emergencia", "Emergência"
+
+    pessoa_a = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name="pessoa A",
+    )
+    data_a = models.DateField("data de A")
+    turno_a = models.CharField("turno de A", max_length=5, choices=Turno.choices)
+    pessoa_b = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name="pessoa B",
+    )
+    data_b = models.DateField("data de B")
+    turno_b = models.CharField("turno de B", max_length=5, choices=Turno.choices)
+    tipo = models.CharField(
+        "tipo", max_length=10, choices=Tipo.choices, default=Tipo.COMBINADA
+    )
+    registrada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name="registrada por",
+    )
+    registrada_em = models.DateTimeField("registrada em", default=timezone.now)
+    desfeita_em = models.DateTimeField("desfeita em", null=True, blank=True)
+    desfeita_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="desfeita por",
+    )
+
+    class Meta:
+        verbose_name = "troca de sábado"
+        verbose_name_plural = "trocas de sábado"
+        ordering = ["-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(pessoa_a=models.F("pessoa_b")),
+                name="troca_sabado_pessoas_diferentes",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(data_a=models.F("data_b")),
+                name="troca_sabado_datas_diferentes",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.data_a:%d/%m} ⇄ {self.data_b:%d/%m}"
+
+    @property
+    def ativa(self):
+        return self.desfeita_em is None

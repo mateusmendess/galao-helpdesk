@@ -26,6 +26,13 @@ urlpatterns = [
     path("trocas/", fila_views.historico, name="historico"),
     path("trocas/nova/", fila_views.registrar, name="registrar_troca"),
     path("escala/", escala_views.pagina, name="escala"),
+    path("escala/trocar/", escala_views.trocar, name="escala_trocar"),
+    path("escala/trocas/", escala_views.trocas, name="escala_trocas"),
+    path(
+        "escala/trocas/<int:pk>/desfazer/",
+        escala_views.desfazer,
+        name="escala_desfazer",
+    ),
     path(
         "entrar/",
         auth_views.LoginView.as_view(authentication_form=EntrarForm),
