@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_safe
@@ -16,9 +15,11 @@ from fila.regras import (
 from fila.views import descrever
 
 
-@login_required
 @require_safe
 def home(request):
+    # Quem nao entrou ve a pagina publica: estatica, nao le nada do banco.
+    if not request.user.is_authenticated:
+        return render(request, "publica/inicio.html")
     # Abre a primeira rodada se ainda nao houver (escrita idempotente no GET).
     # Uma consulta de ausencias serve para a vez, o fechamento e o "ate DD/MM".
     ausencias = ausencias_de_hoje()
