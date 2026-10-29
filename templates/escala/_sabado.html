@@ -1,0 +1,15 @@
+{# Um sabado da lista "Proximos sabados". #}
+<li class="flex items-center justify-between gap-2 border-t border-borda py-2.5 first:border-t-0">
+  <div class="min-w-0">
+    <p class="text-[15px] font-bold">{{ linha.dia.data|date:"d/m" }}</p>
+    <p class="text-[13px] text-texto-suave wrap-anywhere">{{ linha.nomes }}</p>
+    {% for observacao in linha.observacoes %}
+      <p class="mt-0.5 text-xs text-texto-suave wrap-anywhere">{{ observacao }}</p>
+    {% endfor %}
+  </div>
+  {% if linha.dia.sem_escala %}
+    <span class="shrink-0 rounded-full border border-borda bg-fundo px-2.5 py-0.5 text-xs font-semibold text-ausente">sem escala</span>
+  {% elif linha.dia.vagas == 2 %}
+    <span class="shrink-0 rounded-full bg-ok-fundo px-2.5 py-0.5 text-xs font-semibold text-ok">2 pessoas</span>
+  {% endif %}
+</li>

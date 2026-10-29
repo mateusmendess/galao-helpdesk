@@ -6,17 +6,65 @@
 
 {% block content %}
 <main class="mx-auto w-full max-w-md px-4 py-4 md:max-w-4xl">
-  <div class="rounded-[14px] border border-borda bg-white p-4 text-texto">
-    {% if configuracao is None %}
+  {% if configuracao is None %}
+    <div class="rounded-[14px] border border-borda bg-white p-4 text-texto">
       <p class="font-bold">A escala de sábado ainda não foi ligada.</p>
       <p class="mt-1">Por enquanto a equipe segue a planilha. Quando o admin ligar a escala, os sábados aparecem aqui.</p>
-    {% elif not comecou %}
-      <p class="font-bold">A escala começa em {{ configuracao.inicio|date:"d/m/Y" }}.</p>
-      <p class="mt-1">Até lá vale a planilha. A lista dos sábados aparece aqui a partir dessa data.</p>
-    {% else %}
-      <p class="font-bold">A escala de sábado está ligada.</p>
-      <p class="mt-1">A lista dos sábados aparece aqui em breve.</p>
+    </div>
+  {% elif erro %}
+    <div class="rounded-[14px] border border-erro bg-erro-fundo p-4 text-erro" role="alert">
+      <p class="font-bold wrap-anywhere">{{ erro }}</p>
+      <p class="mt-1">Peça a um admin para ajustar em Painel de administração &gt; Escala de sábado.</p>
+    </div>
+  {% else %}
+    {% if antes_do_inicio %}
+      <div class="mb-4 rounded-[14px] border border-borda bg-white p-4 text-texto">
+        <p><span class="font-bold">A escala começa em {{ configuracao.inicio|date:"d/m/Y" }}.</span> Até lá vale a planilha.</p>
+      </div>
     {% endif %}
-  </div>
+    {% if vazio %}
+      <div class="rounded-[14px] border border-borda bg-white p-4 text-texto">
+        <p>Nenhum sábado para mostrar ainda.</p>
+      </div>
+    {% else %}
+      <div class="md:grid md:grid-cols-2 md:items-start md:gap-6">
+        <section id="proximo-sabado" class="rounded-[14px] border border-tinta bg-white p-4 text-texto ring-2 ring-agua" aria-labelledby="titulo-proximo">
+          <h2 id="titulo-proximo" class="text-xs font-bold tracking-wide text-texto-suave uppercase">Próximo sábado · {{ destaque.dia.data|date:"d/m" }}</h2>
+          <div class="mt-1">
+            {% if destaque.dia.sem_escala %}
+              <p class="py-2.5 wrap-anywhere">{{ destaque.nomes }}</p>
+            {% else %}
+              {% include "escala/_turno.html" with rotulo="Manhã" horario="08h às 12h" turno=destaque.manha vazio="ninguém disponível" %}
+              {% if destaque.dia.vagas == 2 %}
+                {% include "escala/_turno.html" with rotulo="Tarde" horario="13h às 17h" turno=destaque.tarde vazio="ninguém disponível" %}
+              {% else %}
+                {% include "escala/_turno.html" with rotulo="Tarde" horario="13h às 17h" turno=destaque.tarde vazio="sem escala de tarde" %}
+              {% endif %}
+            {% endif %}
+            {% for observacao in destaque.observacoes %}
+              <p class="mt-1 text-xs text-texto-suave wrap-anywhere">{{ observacao }}</p>
+            {% endfor %}
+          </div>
+        </section>
+
+        {% if lista %}
+          <section class="mt-4 rounded-[14px] border border-borda bg-white p-4 text-texto md:mt-0" aria-labelledby="titulo-proximos">
+            <h2 id="titulo-proximos" class="text-xs font-bold tracking-wide text-texto-suave uppercase">Próximos sábados</h2>
+            <ul class="mt-1">
+              {% for linha in lista %}{% include "escala/_sabado.html" %}{% endfor %}
+            </ul>
+            {% if mais %}
+              <details class="mt-2">
+                <summary class="flex min-h-11 cursor-pointer list-none items-center justify-center rounded-[10px] border-2 border-tinta bg-white px-4 text-sm font-semibold text-tinta hover:bg-agua [&::-webkit-details-marker]:hidden">Ver mais ({{ mais|length }})</summary>
+                <ul class="mt-1">
+                  {% for linha in mais %}{% include "escala/_sabado.html" %}{% endfor %}
+                </ul>
+              </details>
+            {% endif %}
+          </section>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
 </main>
 {% endblock %}
