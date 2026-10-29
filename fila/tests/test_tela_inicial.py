@@ -26,11 +26,11 @@ def linhas_da_fila(conteudo):
     return [" ".join(re.sub(r"<[^>]+>", " ", item).split()) for item in itens]
 
 
-def test_anonimo_continua_indo_para_o_login(client):
+def test_anonimo_nao_ve_a_fila(client):
     resposta = client.get(reverse("home"))
 
-    assert resposta.status_code == 302
-    assert resposta.url == "/entrar/?next=/"
+    assert resposta.status_code == 200
+    assert "core/home.html" not in [t.name for t in resposta.templates]
 
 
 def test_fila_vazia_mostra_a_mensagem_sem_erro(client, admin_usuario):

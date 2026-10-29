@@ -46,8 +46,9 @@ def test_sair_na_troca_obrigatoria_encerra_a_sessao(client, membro):
 
     assert resposta.status_code == 302
     assert resposta.url == reverse("login")
-    # Sem sessao: a tela inicial e a de senha voltam a pedir o login.
-    for nome in ("home", "password_change"):
-        depois = client.get(reverse(nome))
-        assert depois.status_code == 302
-        assert depois.url.startswith(reverse("login"))
+    # Sem sessao: "/" mostra a pagina publica e a de senha volta a pedir o login.
+    inicio = client.get(reverse("home"))
+    assert "publica/inicio.html" in [t.name for t in inicio.templates]
+    depois = client.get(reverse("password_change"))
+    assert depois.status_code == 302
+    assert depois.url.startswith(reverse("login"))
