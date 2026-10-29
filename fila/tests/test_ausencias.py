@@ -209,7 +209,7 @@ def test_rodada_fecha_quando_os_presentes_trocam(equipe, registrar, dia):
     assert rodada_atual().numero == 2
 
 
-def test_ao_voltar_fica_na_posicao_fixa_e_passa_a_ser_exigido(equipe, registrar, dia):
+def test_ao_voltar_fica_pulada_e_troca_na_proxima_rodada(equipe, registrar, dia):
     Ausencia.objects.create(usuario=equipe[0], inicio=d(9), fim=HOJE)
     for pessoa in equipe[1:6]:
         registrar(pessoa)
@@ -217,12 +217,12 @@ def test_ao_voltar_fica_na_posicao_fixa_e_passa_a_ser_exigido(equipe, registrar,
 
     dia(HOJE + datetime.timedelta(days=1))  # a ausencia acabou ontem
 
-    assert de_quem_e_a_vez() == equipe[0]  # volta na ordem 1, sem prioridade extra
+    # Sempre para a frente: a ordem 1 nao volta nesta rodada.
+    assert de_quem_e_a_vez() == equipe[6]
     registrar(equipe[6])
-    # A rodada ainda nao tinha a ordem 1: ela passa a ser exigida.
-    assert rodada_atual().numero == 1
-    registrar(equipe[0])
+    # A rodada fecha sem ela; na proxima, ela troca no lugar de sempre.
     assert rodada_atual().numero == 2
+    assert de_quem_e_a_vez() == equipe[0]
 
 
 # 5. Divida

@@ -56,7 +56,7 @@
               {% if devendo > 0 %}<span class="shrink-0 rounded-md border border-[#e3b878] bg-aviso-fundo px-1.5 text-xs font-bold text-aviso">devendo {{ devendo }}</span>{% endif %}
             </span>
             <span class="shrink-0 text-right text-[13px] {% if posicao.estado == 'trocou' %}font-semibold text-ok{% elif posicao.estado == 'vez' %}font-bold text-tinta{% elif posicao.estado == 'ausente' %}text-ausente{% else %}text-texto-suave{% endif %}">
-              {% if posicao.estado == 'trocou' %}✓ já trocou{% elif posicao.estado == 'vez' %}vez agora{% elif posicao.estado == 'ausente' %}ausente{% if ausente_ate %} até {{ ausente_ate|date:"d/m" }}{% endif %}{% else %}aguardando{% endif %}
+              {% if posicao.estado == 'trocou' %}✓ já trocou{% elif posicao.estado == 'vez' %}vez agora{% elif posicao.estado == 'ausente' %}ausente{% if ausente_ate %} até {{ ausente_ate|date:"d/m" }}{% endif %}{% elif posicao.estado == 'pulado' %}volta na próxima rodada{% else %}aguardando{% endif %}
             </span>
           </li>
         {% endfor %}

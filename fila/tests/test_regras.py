@@ -148,20 +148,21 @@ def test_com_a_ordem_2_ausente_a_vez_passa_para_a_ordem_3(equipe, registrar):
 def test_ausente_nao_e_exigido_para_fechar_a_rodada(equipe, registrar):
     ausentes = {equipe[1]}
     rodada = rodada_atual()
-    for pessoa in equipe:
-        if pessoa != equipe[1]:
-            Troca.objects.create(
-                rodada=rodada,
-                titular=pessoa,
-                executor=pessoa,
-                registrada_por=pessoa,
-            )
 
-    # Sem ausentes a rodada continua aberta (falta a ordem 2)...
+    def trocar(pessoa):
+        Troca.objects.create(
+            rodada=rodada, titular=pessoa, executor=pessoa, registrada_por=pessoa
+        )
+
+    for pessoa in [equipe[0], *equipe[2:6]]:
+        trocar(pessoa)
+
+    # Falta a ordem 7 (a vez): a rodada continua aberta...
+    assert fechar_rodada_se_completa(rodada, ausentes=ausentes) is False
     rodada.refresh_from_db()
     assert rodada.fechada_em is None
-    # ...com a ordem 2 ausente, fecha.
-    assert fechar_rodada_se_completa(rodada, ausentes=ausentes) is True
+    # ...e fecha quando ela troca, sem exigir a ordem 2.
+    trocar(equipe[6])
     rodada.refresh_from_db()
     assert rodada.fechada_em is not None
 
