@@ -62,3 +62,12 @@ def test_um_so_h1_e_sem_faixa_nem_menu(client):
     assert re.findall(r"<h1\b[^>]*>(.*?)</h1>", html) == ["Help Desk Equipe"]
     assert "<header" not in html and "bg-tinta text-white" not in html
     assert "Menu da conta" not in html and "<nav" not in html
+
+
+def test_cartao_dentro_do_main_e_um_so_h1(client):
+    html = entrada(client)
+    main = html[html.index("<main") : html.index("</main>")]
+
+    assert html.count("<h1") == 1 and "<h1" in main
+    assert re.search(r'<section class="rounded-\[14px\][^"]*bg-white', main)
+    assert "<form" in main.split("<section", 1)[1]
