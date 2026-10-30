@@ -1,7 +1,11 @@
+import re
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.utils import timezone
+
+MATRICULA_VALIDA = re.compile(r"^[0-9]+$")
 
 
 class UsuarioManager(BaseUserManager):
@@ -35,10 +39,30 @@ class UsuarioManager(BaseUserManager):
         # Usado no login: o e-mail digitado vale com qualquer maiuscula/minuscula.
         return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": email})
 
+    def por_identificador(self, identificador):
+        # Login: so digitos = matricula (texto exato); senao, e-mail como hoje.
+        identificador = (identificador or "").strip()
+        if MATRICULA_VALIDA.fullmatch(identificador):
+            return self.get(matricula=identificador)
+        return self.get_by_natural_key(identificador)
+
 
 class Usuario(AbstractUser):
     username = None
     email = models.EmailField("e-mail", unique=True)
+    # Texto (nao numero): "0123" e "123" sao matriculas diferentes.
+    # Vazia vira None, para duas pessoas sem matricula nao baterem no unique.
+    matricula = models.CharField(
+        "matrícula",
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[
+            RegexValidator(MATRICULA_VALIDA, "A matrícula deve ter só números.")
+        ],
+        help_text="Só números. Pode ficar em branco por enquanto.",
+    )
     # Posicao na fila (1, 2, 3...). Vazia para quem nao esta na fila.
     ordem = models.PositiveIntegerField(
         "ordem",
@@ -70,14 +94,24 @@ class Usuario(AbstractUser):
 
     objects = UsuarioManager()
 
+    def _normalizar_matricula(self):
+        self.matricula = (self.matricula or "").strip() or None
+
+    def clean_fields(self, exclude=None):
+        # Os validadores rodam aqui, antes do clean(): tira os espacos antes.
+        self._normalizar_matricula()
+        super().clean_fields(exclude=exclude)
+
     def clean(self):
         super().clean()
         if self.email:
             self.email = self.email.lower()
+        self._normalizar_matricula()
 
     def save(self, *args, **kwargs):
         if self.email:
             self.email = self.email.lower()
+        self._normalizar_matricula()
         super().save(*args, **kwargs)
 
 
