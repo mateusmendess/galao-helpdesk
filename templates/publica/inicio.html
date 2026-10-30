@@ -13,7 +13,7 @@
 <header class="bg-tinta text-[17px] text-white">
   <div class="mx-auto w-full max-w-[1040px] px-4">
     <div class="flex min-h-[60px] items-center gap-3">
-      <svg class="h-[30px] w-[30px] flex-none" viewBox="0 0 32 32" aria-hidden="true"><path d="M12 3h8v3l2 2v3c3 1.5 4 4 4 7v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9c0-3 1-5.5 4-7V8l2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/><path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#E3F2F7"/></svg>
+      {% include "_logo.html" with classe="h-[30px] w-[30px] flex-none text-white" %}
       <b class="flex-1 tracking-[-.01em]">Help Desk Equipe</b>
       <a href="{% url 'login' %}" class="inline-flex min-h-11 items-center justify-center rounded-[10px] border-2 border-white/55 px-4 text-[15px] font-bold text-white hover:bg-white/12 focus-visible:outline-white">Entrar</a>
     </div>
