@@ -49,3 +49,6 @@
 @keyframes fila-f5 { 0%, 57% { opacity: 0; } 59%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
 @keyframes fila-f6 { 0%, 71% { opacity: 0; } 73%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
 @keyframes fila-f7 { 0%, 85.7% { opacity: 0; } 88%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+
+/* Tela baixa (ex.: celular com o teclado aberto): a entrada vai para o topo. */
+@custom-variant baixa (@media (max-height: 520px));

@@ -3,15 +3,19 @@
 {% block title %}Entrar · Help Desk Equipe{% endblock %}
 
 {% block content %}
-<main class="mx-auto w-full max-w-md px-4 pt-7 pb-8">
+{# Bloco no centro da tela (no celular um pouco acima do meio); em tela baixa,  #}
+{# como com o teclado aberto, vai para o topo e encolhe (variante "baixa").      #}
+<main class="relative flex min-h-screen flex-col items-center justify-center pt-14 pb-[12vh] supports-[min-height:100dvh]:min-h-dvh md:pb-14 baixa:justify-start baixa:pt-11 baixa:pb-4">
+  <a href="{% url 'home' %}" class="absolute top-2 left-2 inline-flex min-h-11 items-center px-2 text-[15px] font-semibold text-tinta hover:underline">&lsaquo; Página inicial</a>
+  <div class="w-full max-w-md px-4">
   {# Marca (sem cabecalho: quem esta aqui ainda nao entrou). #}
   <div class="text-center">
-    {% include "_logo.html" with classe="mx-auto h-12 w-12 text-tinta" %}
-    <h1 class="mt-1.5 text-2xl font-extrabold">Help Desk Equipe</h1>
+    {% include "_logo.html" with classe="mx-auto h-16 w-16 text-tinta md:h-[72px] md:w-[72px] baixa:h-14 baixa:w-14" %}
+    <h1 class="mt-2 text-[28px] leading-tight font-extrabold baixa:mt-1">Help Desk Equipe</h1>
   </div>
 
-  <section class="mt-3 rounded-[14px] border border-borda bg-white px-4 py-5">
-    <p class="text-base">Entre com seu e-mail</p>
+  <section class="mt-[18px] rounded-[14px] border border-borda bg-white px-4 py-5 baixa:mt-3 baixa:py-4">
+    <p class="text-[15px] text-texto-suave">Acesso só para quem foi cadastrado.</p>
 
     {% if form.non_field_errors %}
       <div class="mt-2 flex items-start gap-2 rounded-[10px] border border-erro bg-erro-fundo px-3 py-2.5 text-sm text-erro" role="alert">
@@ -24,10 +28,11 @@
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
 
+      {# Voltou com erro e com o e-mail preenchido: o foco vai direto para a senha. #}
       <div>
         <label for="{{ form.username.id_for_label }}" class="block text-[15px] font-semibold">E-mail</label>
         <input type="email" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
-               value="{{ form.username.value|default_if_none:'' }}" autocomplete="email" autofocus required
+               value="{{ form.username.value|default_if_none:'' }}" autocomplete="email" {% if not form.errors or not form.username.value %}autofocus {% endif %}required
                class="mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 text-base text-texto {% if form.username.errors %}border-erro{% else %}border-[#7f8f97]{% endif %}">
         {% for erro in form.username.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
       </div>
@@ -35,7 +40,7 @@
       <div>
         <label for="{{ form.password.id_for_label }}" class="block text-[15px] font-semibold">Senha</label>
         <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
-               autocomplete="current-password" required
+               autocomplete="current-password" {% if form.errors and form.username.value %}autofocus {% endif %}required
                class="mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 text-base text-texto {% if form.password.errors %}border-erro{% else %}border-[#7f8f97]{% endif %}">
         {% for erro in form.password.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
       </div>
@@ -45,6 +50,8 @@
         Entrar
       </button>
     </form>
+    <p class="mt-3.5 text-center text-sm text-texto-suave">Esqueceu a senha? Fale com um admin da equipe.</p>
   </section>
+  </div>
 </main>
 {% endblock %}
