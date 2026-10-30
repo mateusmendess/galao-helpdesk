@@ -122,5 +122,9 @@ def test_svg_valido_com_as_cores_da_identidade():
     assert raiz.get("viewBox") == "0 0 64 64"
     cores = {e.get(attr) for e in raiz.iter() for attr in ("fill", "stroke")}
     assert cores - {None} == {"#0B4F6C"}
-    # O encontro dos dois quadrados fica vazado.
-    assert raiz.find("{http://www.w3.org/2000/svg}path").get("fill-rule") == "evenodd"
+    # Um caminho so, a pilha: o furo ja vem no desenho (sem mask, id nem evenodd).
+    caminhos = list(raiz.iter("{http://www.w3.org/2000/svg}path"))
+    assert len(caminhos) == 1
+    assert caminhos[0].get("d").startswith("M36 4L50 4C55.52 4 60 8.48 60 14")
+    texto = arquivo("img/favicon.svg").decode()
+    assert "mask" not in texto and " id=" not in texto and "evenodd" not in texto

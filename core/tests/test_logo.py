@@ -7,7 +7,7 @@ from django.urls import reverse
 
 pytestmark = pytest.mark.django_db
 
-LOGO = "M17 7H31A12 12 0 0 1 43 19V33"
+LOGO = "M36 4L50 4C55.52 4 60 8.48 60 14"
 GALAO = "M12 3h8v3l2 2v3"
 
 
