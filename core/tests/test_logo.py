@@ -53,6 +53,8 @@ def test_marca_e_a_logo_nova(client, membro, nome, logado, cor):
     assert svg and cor in svg.group(1).split()
     assert 'aria-hidden="true" focusable="false"' in svg.group(0)
     assert LOGO in trecho and GALAO not in trecho
+    tons = re.findall(r'<path d="[^"]+" opacity="([^"]+)"/>', trecho)
+    assert tons == [".3", ".6", "1"]
 
 
 def test_galao_so_fica_como_modulo_na_pagina_publica(client, membro):
