@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{# Pagina publica em "/" para quem nao entrou: so apresentacao, sem dados do banco. #}
+{# Os nomes (Ana, Bruno, Carla, Diego e A a G) sao ficticios.                       #}
+
+{% block title %}Help Desk Equipe{% endblock %}
+
+{% block meta %}<meta name="description" content="O sistema da equipe do Help Desk. Mostra de quem é a vez de trocar o galão e quem trabalha no sábado, sem planilha e sem perguntar no grupo.">{% endblock %}
+
+{% block cabecalho %}
+<a href="#modulos" class="absolute top-2 -left-[999px] z-10 rounded-lg bg-white px-3.5 py-2.5 font-bold text-tinta focus:left-2">Pular para o conteúdo</a>
+
+<header class="bg-tinta text-[17px] text-white">
+  <div class="mx-auto w-full max-w-[1040px] px-4">
+    <div class="flex min-h-[60px] items-center gap-3">
+      <svg class="h-[30px] w-[30px] flex-none" viewBox="0 0 32 32" aria-hidden="true"><path d="M12 3h8v3l2 2v3c3 1.5 4 4 4 7v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9c0-3 1-5.5 4-7V8l2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/><path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#E3F2F7"/></svg>
+      <b class="flex-1 tracking-[-.01em]">Help Desk Equipe</b>
+      <a href="{% url 'login' %}" class="inline-flex min-h-11 items-center justify-center rounded-[10px] border-2 border-white/55 px-4 text-[15px] font-bold text-white hover:bg-white/12 focus-visible:outline-white">Entrar</a>
+    </div>
+  </div>
+
+  <div class="mx-auto w-full max-w-[1040px] px-4 pt-9 min-[860px]:pt-16">
+    <div class="grid gap-[34px] min-[860px]:grid-cols-[1.05fr_.95fr] min-[860px]:items-end min-[860px]:gap-12">
+      <div>
+        <h1 class="max-w-[11ch] text-[clamp(40px,11.5vw,76px)] leading-[.98] font-extrabold tracking-[-.035em]">Cada um na sua vez.</h1>
+        <p class="mt-4 max-w-[34ch] text-[19px] leading-[1.45] text-[#d6ebf3] min-[860px]:text-[21px]">O sistema da equipe do Help Desk. Mostra de quem é a vez de trocar o galão e quem trabalha no sábado, sem planilha e sem perguntar no grupo.</p>
+        <div class="mt-[26px] flex flex-wrap items-center gap-3">
+          <a href="{% url 'login' %}" class="inline-flex min-h-12 items-center justify-center rounded-[10px] border-2 border-transparent bg-white px-[22px] text-base font-bold text-tinta hover:bg-agua focus-visible:outline-white">Entrar</a>
+          <a href="#modulos" class="inline-flex min-h-11 items-center font-semibold text-white underline underline-offset-4 focus-visible:outline-white">Ver o que tem dentro</a>
+        </div>
+      </div>
+
+      {# A fila que anda: --c = circulo, --g = espaco, --u = passo (circulo + espaco).  #}
+      {# Abaixo de ~350px o circulo encolhe para as 7 pessoas caberem (36px em 320px).  #}
+      <div class="[--c:min(40px,calc((100vw-68px)/7))] [--g:6px] [--u:calc(var(--c)+var(--g))] min-[860px]:[--c:52px] min-[860px]:[--g:10px]">
+        <p class="mb-3.5 text-[15px] font-semibold text-[#cfe6ee]">A fila só anda para a frente</p>
+        <div class="relative pt-[38px]" aria-hidden="true">
+          {# Sem movimento: o galao fica parado na B, com a A preenchida. #}
+          <div class="absolute top-0 left-0 flex h-[34px] w-(--c) animate-[fila-anda_14s_infinite] justify-center will-change-transform motion-reduce:translate-x-(--u) motion-reduce:animate-none">
+            <svg class="h-8 w-7" viewBox="0 0 32 32"><path d="M12 3h8v3l2 2v3c3 1.5 4 4 4 7v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9c0-3 1-5.5 4-7V8l2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/><path d="M7 19c3-2 5 2 9 0s6-2 9 0v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#E3F2F7"/></svg>
+          </div>
+          {% with circulo="relative grid h-(--c) w-(--c) flex-none place-items-center rounded-full border-2 text-[calc(var(--c)*.4)] font-extrabold text-white" %}
+          {% with acende="border-white/70 after:absolute after:-inset-0.5 after:rounded-full after:border-2 after:border-agua after:bg-agua/32 after:opacity-0 motion-reduce:after:animate-none" %}
+          <div class="flex gap-(--g)">
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f1_14s_infinite] motion-reduce:after:opacity-100"><span class="relative z-1">A</span></div>
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f2_14s_infinite]"><span class="relative z-1">B</span></div>
+            <div class="{{ circulo }} border-dashed border-white/60 bg-[repeating-linear-gradient(135deg,transparent_0_5px,rgba(255,255,255,.18)_5px_7px)]"><span class="relative z-1">C</span><i class="absolute top-[calc(100%+6px)] left-1/2 -translate-x-1/2 text-xs font-semibold whitespace-nowrap text-[#d6ebf3]">ausente</i></div>
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f4_14s_infinite]"><span class="relative z-1">D</span></div>
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f5_14s_infinite]"><span class="relative z-1">E</span></div>
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f6_14s_infinite]"><span class="relative z-1">F</span></div>
+            <div class="{{ circulo }} {{ acende }} after:animate-[fila-f7_14s_infinite]"><span class="relative z-1">G</span></div>
+          </div>
+          {% endwith %}
+          {% endwith %}
+        </div>
+        <p class="mt-[30px] max-w-[44ch] text-[15px] text-[#d6ebf3]"><b class="text-white">Carla estava ausente na vez dela.</b> A vez pulou para o Diego e segue em frente. Ela volta na próxima rodada, sem dívida.</p>
+      </div>
+    </div>
+  </div>
+  <svg class="-mt-px block h-10 w-full" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40V18c120 14 240 14 360 0s240-14 360 0 240 14 360 0 240-14 360 0v22z" fill="#F3F6F7"/></svg>
+</header>
+{% endblock %}
+
+{% block content %}
+<main class="text-[17px]">
+  <section id="modulos" class="mx-auto w-full max-w-[1040px] px-4 pt-14">
+    <h2 class="max-w-[20ch] text-[clamp(28px,7vw,42px)] leading-[1.08] font-extrabold tracking-[-.025em]">Dois módulos, a mesma equipe.</h2>
+    <p class="mt-3 max-w-[52ch] text-texto-suave">As pessoas e as ausências são cadastradas uma vez e valem para tudo. Uma ausência lançada vale para o galão e para a escala.</p>
+
+    <article class="mt-10 grid gap-[22px] border-t border-borda pt-9 min-[860px]:grid-cols-2 min-[860px]:items-center min-[860px]:gap-14">
+      <div>
+        <h3 class="text-[26px] leading-[1.1] font-bold tracking-[-.02em]">Galão</h3>
+        <p class="mt-2.5 max-w-[46ch] text-texto-suave">Mostra de quem é a vez de trocar, quantos já trocaram na rodada e quem está ausente. Se alguém troca no lugar de outra pessoa, fica registrado e o saldo aparece ao lado do nome.</p>
+      </div>
+      <div class="w-full max-w-[420px] rounded-[18px] border border-borda bg-white p-3.5 text-[15px] shadow-[0_10px_30px_rgba(11,79,108,.10)] min-[860px]:justify-self-end" aria-hidden="true">
+        <div class="rounded-xl border border-[#bfe0ea] bg-agua p-3.5">
+          <small class="block text-[13px] font-semibold text-tinta">Vez de</small>
+          <strong class="mt-0.5 mb-2.5 block text-[34px] leading-[1.05] font-extrabold tracking-[-.02em] text-tinta">Bruno</strong>
+          <div class="flex min-h-11 items-center justify-center rounded-[10px] bg-tinta font-bold text-white">Troquei o galão</div>
+        </div>
+        {% with n="grid h-[22px] w-[22px] flex-none place-items-center rounded-full bg-fundo text-xs font-bold text-texto-suave" %}
+        <ul class="mt-2.5">
+          <li class="flex items-center gap-2.5 px-0.5 py-2"><span class="{{ n }}">1</span>Ana<span class="ml-auto text-[13px] font-semibold text-ok">já trocou</span></li>
+          <li class="flex items-center gap-2.5 border-t border-borda px-0.5 py-2"><span class="{{ n }}">2</span>Bruno<span class="ml-auto text-[13px] font-bold text-tinta">vez agora</span></li>
+          <li class="flex items-center gap-2.5 border-t border-borda px-0.5 py-2"><span class="{{ n }}">3</span>Carla<span class="ml-auto text-[13px] text-ausente">ausente</span></li>
+          <li class="flex items-center gap-2.5 border-t border-borda px-0.5 py-2"><span class="{{ n }}">4</span>Diego<span class="ml-auto text-[13px] text-texto-suave">aguardando</span></li>
+        </ul>
+        {% endwith %}
+      </div>
+    </article>
+
+    <article class="mt-10 grid gap-[22px] border-t border-borda pt-9 min-[860px]:grid-cols-2 min-[860px]:items-center min-[860px]:gap-14">
+      <div>
+        <h3 class="text-[26px] leading-[1.1] font-bold tracking-[-.02em]">Escala de sábado</h3>
+        <p class="mt-2.5 max-w-[46ch] text-texto-suave">O próximo sábado em destaque, com manhã e tarde, e os seguintes em previsão. Duas pessoas trocam de sábado direto no sistema, e as regras combinadas ficam a um toque.</p>
+      </div>
+      <div class="w-full max-w-[420px] rounded-[18px] border border-borda bg-white p-3.5 text-[15px] shadow-[0_10px_30px_rgba(11,79,108,.10)] min-[860px]:order-first min-[860px]:justify-self-start" aria-hidden="true">
+        {% with tag="inline-block rounded-full px-[9px] py-0.5 text-xs font-semibold whitespace-nowrap" %}
+        <div class="rounded-xl border border-tinta p-3 shadow-[0_0_0_2px_var(--color-agua)]">
+          <h4 class="mb-1 text-xs font-bold text-texto-suave">Próximo sábado · 05/12</h4>
+          <div class="flex justify-between gap-2 py-[7px]"><div>Manhã<small class="block text-xs text-texto-suave">08h às 12h</small></div><div>Ana <span class="{{ tag }} bg-agua text-tinta">você</span></div></div>
+          <div class="flex justify-between gap-2 border-t border-borda py-[7px]"><div>Tarde<small class="block text-xs text-texto-suave">13h às 17h</small></div><div class="text-texto-suave">sem escala de tarde</div></div>
+        </div>
+        <ul class="mt-2.5">
+          <li class="flex items-center justify-between gap-2 border-t border-borda px-0.5 py-2"><span><b class="mr-2">12/12</b>Bruno</span></li>
+          <li class="flex items-center justify-between gap-2 border-t border-borda px-0.5 py-2"><span><b class="mr-2">19/12</b>Carla e Diego</span><span class="{{ tag }} bg-ok-fundo text-ok">2 pessoas</span></li>
+          <li class="flex items-center justify-between gap-2 border-t border-borda px-0.5 py-2"><span><b class="mr-2">09/01</b>Ana</span><span class="{{ tag }} bg-aviso-fundo text-aviso">troca</span></li>
+        </ul>
+        {% endwith %}
+      </div>
+    </article>
+
+    <div class="mt-10 grid gap-1.5 rounded-[18px] border-2 border-dashed border-[#9fb4bd] px-5 py-[26px]">
+      <h3 class="text-[24px] font-bold tracking-[-.02em]">O próximo módulo cabe aqui.</h3>
+      <p class="max-w-[56ch] text-texto-suave">O sistema foi feito para crescer. Um módulo novo entra quando usa a mesma equipe e as mesmas ausências.</p>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-[1040px] px-4 pt-14" aria-labelledby="dia">
+    <h2 id="dia" class="max-w-[20ch] text-[clamp(28px,7vw,42px)] leading-[1.08] font-extrabold tracking-[-.025em]">Pensado para o dia a dia.</h2>
+    <ul class="mt-[34px] grid min-[860px]:grid-cols-2 min-[860px]:gap-x-10">
+      <li class="mb-3.5 border-l-4 border-tinta py-4 pl-[18px]"><b class="block text-[19px] tracking-[-.01em]">Cada pessoa tem o seu acesso.</b><span class="text-texto-suave">Entra com o próprio e-mail e a própria senha.</span></li>
+      <li class="mb-3.5 border-l-4 border-tinta py-4 pl-[18px]"><b class="block text-[19px] tracking-[-.01em]">Funciona no celular.</b><span class="text-texto-suave">Abre no navegador, sem instalar nada.</span></li>
+      <li class="mb-3.5 border-l-4 border-tinta py-4 pl-[18px]"><b class="block text-[19px] tracking-[-.01em]">Tudo fica registrado.</b><span class="text-texto-suave">Cada troca mostra quem fez e quando.</span></li>
+      <li class="mb-3.5 border-l-4 border-tinta py-4 pl-[18px]"><b class="block text-[19px] tracking-[-.01em]">As regras da equipe estão lá.</b><span class="text-texto-suave">As mesmas da planilha, numa página só.</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="mt-16 bg-tinta pt-11 pb-9 text-[17px] text-white">
+  <div class="mx-auto w-full max-w-[1040px] px-4">
+    <h2 class="max-w-[16ch] text-[clamp(28px,7vw,42px)] leading-[1.08] font-extrabold tracking-[-.025em]">Faz parte da equipe?</h2>
+    <p class="mt-2.5 max-w-[40ch] text-[#d6ebf3]">Entre com o seu e-mail para ver a vez.</p>
+    <a href="{% url 'login' %}" class="mt-[22px] inline-flex min-h-12 items-center justify-center rounded-[10px] border-2 border-transparent bg-white px-[22px] text-base font-bold text-tinta hover:bg-agua focus-visible:outline-white">Entrar</a>
+    <small class="mt-[34px] block max-w-[60ch] text-[13px] text-[#b6d4df]">Help Desk Equipe é o sistema interno da equipe de Help Desk. O acesso é só para quem foi cadastrado.</small>
+  </div>
+</footer>
+{% endblock %}

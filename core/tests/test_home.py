@@ -4,11 +4,11 @@ from django.urls import reverse
 pytestmark = pytest.mark.django_db
 
 
-def test_anonimo_e_mandado_para_o_login(client):
+def test_anonimo_ve_a_pagina_publica(client):
     resposta = client.get(reverse("home"))
 
-    assert resposta.status_code == 302
-    assert resposta.url == "/entrar/?next=/"
+    assert resposta.status_code == 200
+    assert [t.name for t in resposta.templates][0] == "publica/inicio.html"
 
 
 def test_logado_ve_a_pagina_inicial_com_o_nome(client, membro):

@@ -160,7 +160,9 @@ def test_troca_encerra_as_outras_sessoes(client, membro):
 
     trocar(client, SENHA_DE_TESTE, NOVA_SENHA)
 
-    assert outro_navegador.get(reverse("home")).status_code == 302
+    # A outra sessao caiu: "/" mostra a pagina publica, nao o galao.
+    fora = outro_navegador.get(reverse("home"))
+    assert "publica/inicio.html" in [t.name for t in fora.templates]
     assert client.get(reverse("home")).status_code == 200
 
 
@@ -278,8 +280,9 @@ def test_sem_a_marca_nada_e_redirecionado(client, admin_usuario):
         assert client.get(reverse(rota)).status_code == 200, rota
 
 
-def test_anonimo_continua_indo_para_o_login(client):
-    assert client.get(reverse("home")).url == "/entrar/?next=/"
+def test_anonimo_ve_a_pagina_publica_e_o_login(client):
+    inicio = client.get(reverse("home"))
+    assert "publica/inicio.html" in [t.name for t in inicio.templates]
     assert client.get(reverse("login")).status_code == 200
     assert client.get(reverse("saude")).status_code == 200
 
