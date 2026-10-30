@@ -70,7 +70,7 @@ def test_login_erro_fica_abaixo_do_subtitulo_com_icone_fora_do_texto(client, mem
 
     html = resposta.content.decode()
     titulo = html.index("Help Desk Equipe</h1>")
-    subtitulo = html.index("Entre com seu e-mail")
+    subtitulo = html.index("Acesso só para quem foi cadastrado.")
     erro = html.index("E-mail ou senha incorretos.")
     assert titulo < subtitulo < erro
     assert re.search(
