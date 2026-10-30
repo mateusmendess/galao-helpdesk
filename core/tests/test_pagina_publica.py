@@ -65,3 +65,12 @@ def test_pular_para_o_conteudo_e_um_so_h1(client):
     assert html.count("<h1") == 1
     assert '<a href="#modulos"' in html and ">Pular para o conteúdo</a>" in html
     assert 'id="modulos"' in html
+
+
+def test_sem_o_bloco_do_proximo_modulo_e_com_os_dois_modulos(client):
+    html = publica(client)
+
+    assert "O próximo módulo cabe aqui" not in html and "cabe aqui" not in html
+    assert re.findall(r"<h1[^>]*>(.*?)</h1>", html) == ["Cada um na sua vez."]
+    modulos = re.findall(r"<h3[^>]*>(.*?)</h3>", html)
+    assert modulos == ["Galão", "Escala de sábado"]
