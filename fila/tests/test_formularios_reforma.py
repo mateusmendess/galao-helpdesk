@@ -57,7 +57,7 @@ def test_login_tem_a_marca_como_h1_unico_e_nenhum_menu(client):
 def test_login_campos_e_botao_com_as_classes_novas(client):
     html = pagina(client, None, "login")
 
-    assert CAMPO <= classes(html, r'<input type="email"[^>]*>')
+    assert CAMPO <= classes(html, r'<input type="text"[^>]*>')
     assert CAMPO <= classes(html, r'<input type="password"[^>]*>')
     assert PRIMARIO <= classes(html, r'<button type="submit"[^>]*>')
 
@@ -71,11 +71,11 @@ def test_login_erro_fica_abaixo_do_subtitulo_com_icone_fora_do_texto(client, mem
     html = resposta.content.decode()
     titulo = html.index("Help Desk Equipe</h1>")
     subtitulo = html.index("Acesso só para quem foi cadastrado.")
-    erro = html.index("E-mail ou senha incorretos.")
+    erro = html.index("Matrícula ou senha incorretas.")
     assert titulo < subtitulo < erro
     assert re.search(
         r'role="alert">\s*<svg[^>]*aria-hidden="true">.*?</svg>\s*'
-        r'<div class="min-w-0"><p>E-mail ou senha incorretos\.</p>',
+        r'<div class="min-w-0"><p>Matrícula ou senha incorretas\.</p>',
         html,
         flags=re.S,
     )
