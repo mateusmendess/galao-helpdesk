@@ -15,7 +15,7 @@ TAGS_DO_ICONE = (
     r'<link rel="icon" href="([^"]+)" sizes="32x32">',
     r'<link rel="apple-touch-icon" href="([^"]+)">',
 )
-ESPERADOS = ("img/icone.svg", "img/favicon.ico", "img/apple-touch-icon.png")
+ESPERADOS = ("img/favicon.svg", "img/favicon.ico", "img/apple-touch-icon.png")
 PNG = b"\x89PNG\r\n\x1a\n"
 
 
@@ -109,16 +109,18 @@ def test_favicon_ico_tem_16_e_32():
 
 @pytest.mark.parametrize(
     "nome, lado",
-    [("apple-touch-icon.png", 180), ("icone-192.png", 192), ("icone-512.png", 512)],
+    [("apple-touch-icon.png", 180)],
 )
 def test_pngs_com_as_dimensoes_certas(nome, lado):
     assert lado_do_png(arquivo(f"img/{nome}")) == (lado, lado)
 
 
 def test_svg_valido_com_as_cores_da_identidade():
-    raiz = ET.fromstring(arquivo("img/icone.svg"))
+    raiz = ET.fromstring(arquivo("img/favicon.svg"))
 
     assert raiz.tag == "{http://www.w3.org/2000/svg}svg"
     assert raiz.get("viewBox") == "0 0 64 64"
     cores = {e.get(attr) for e in raiz.iter() for attr in ("fill", "stroke")}
-    assert {"#0B4F6C", "#E3F2F7"} <= cores
+    assert cores - {None} == {"#0B4F6C"}
+    # O encontro dos dois quadrados fica vazado.
+    assert raiz.find("{http://www.w3.org/2000/svg}path").get("fill-rule") == "evenodd"

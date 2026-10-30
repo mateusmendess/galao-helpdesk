@@ -153,7 +153,11 @@ def test_faixa_azul_com_e_sem_abas(client, equipe, nome):
     cabecalho = html[html.index("<header") : html.index("</header>")]
 
     assert FAIXA in cabecalho
-    assert 'stroke="#FFFFFF"' in cabecalho and 'fill="#E3F2F7"' in cabecalho
+    # A logo usa currentColor e fica branca sobre o azul.
+    assert re.search(
+        r'<svg class="[^"]*\btext-white\b[^"]*" viewBox="0 0 64 64"', cabecalho
+    )
+    assert 'fill="currentColor"' in cabecalho
     if "<nav" in cabecalho:
         assert cabecalho.index(FAIXA) < cabecalho.index(
             '<div class="border-b border-borda bg-white">'
