@@ -28,10 +28,11 @@
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
 
+      {# Voltou com erro e com o e-mail preenchido: o foco vai direto para a senha. #}
       <div>
         <label for="{{ form.username.id_for_label }}" class="block text-[15px] font-semibold">E-mail</label>
         <input type="email" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
-               value="{{ form.username.value|default_if_none:'' }}" autocomplete="email" autofocus required
+               value="{{ form.username.value|default_if_none:'' }}" autocomplete="email" {% if not form.errors or not form.username.value %}autofocus {% endif %}required
                class="mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 text-base text-texto {% if form.username.errors %}border-erro{% else %}border-[#7f8f97]{% endif %}">
         {% for erro in form.username.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
       </div>
@@ -39,7 +40,7 @@
       <div>
         <label for="{{ form.password.id_for_label }}" class="block text-[15px] font-semibold">Senha</label>
         <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
-               autocomplete="current-password" required
+               autocomplete="current-password" {% if form.errors and form.username.value %}autofocus {% endif %}required
                class="mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 text-base text-texto {% if form.password.errors %}border-erro{% else %}border-[#7f8f97]{% endif %}">
         {% for erro in form.password.errors %}<p class="mt-1 text-sm text-erro">{{ erro }}</p>{% endfor %}
       </div>
