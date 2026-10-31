@@ -14,6 +14,7 @@ class UsuarioAdmin(UserAdmin):
 
     list_display = (
         "email",
+        "matricula",
         "first_name",
         "ordem",
         "ordem_escala",
@@ -21,12 +22,12 @@ class UsuarioAdmin(UserAdmin):
         "eh_admin",
     )
     list_filter = ("is_active", "is_staff", "is_superuser")
-    search_fields = ("email", "first_name", "last_name")
+    search_fields = ("email", "matricula", "first_name", "last_name")
     # Quem esta na fila primeiro (1, 2, 3...), quem esta sem ordem por ultimo.
     ordering = (F("ordem").asc(nulls_last=True), "email")
 
     fieldsets = (
-        (None, {"fields": ("email", "password", "precisa_trocar_senha")}),
+        (None, {"fields": ("email", "matricula", "password", "precisa_trocar_senha")}),
         (
             "Dados pessoais",
             {"fields": ("first_name", "last_name", "ordem", "ordem_escala")},
@@ -52,6 +53,7 @@ class UsuarioAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "email",
+                    "matricula",
                     "first_name",
                     "ordem",
                     "ordem_escala",

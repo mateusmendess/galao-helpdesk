@@ -17,6 +17,7 @@ class UsuarioCriacaoForm(AdminUserCreationForm):
         model = Usuario
         fields = (
             "email",
+            "matricula",
             "first_name",
             "ordem",
             "ordem_escala",
@@ -36,19 +37,19 @@ class UsuarioAlteracaoForm(UserChangeForm):
 
 
 class EntrarForm(AuthenticationForm):
-    """Login por e-mail com mensagem de erro unica, sem dizer qual campo errou."""
+    """Login por matricula ou e-mail, com uma so mensagem de erro."""
 
     error_messages = {
         **AuthenticationForm.error_messages,
-        "invalid_login": "E-mail ou senha incorretos.",
+        "invalid_login": "Matrícula ou senha incorretas.",
         "bloqueado": "Muitas tentativas de entrada. Tente de novo em alguns minutos.",
     }
 
     def clean(self):
-        # Checa o bloqueio antes de conferir a senha: com o e-mail bloqueado,
+        # Checa o bloqueio antes de conferir a senha: com a pessoa bloqueada,
         # nem a senha certa entra, e a tentativa nao e registrada.
-        email = self.cleaned_data.get("username")
-        if email and esta_bloqueado(email):
+        identificador = self.cleaned_data.get("username")
+        if identificador and esta_bloqueado(identificador):
             raise ValidationError(self.error_messages["bloqueado"], code="bloqueado")
         return super().clean()
 

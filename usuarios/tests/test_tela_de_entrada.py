@@ -41,7 +41,7 @@ def test_link_de_volta_para_a_pagina_inicial(client):
 
 
 def test_primeira_visita_foca_o_email(client):
-    assert com_autofocus(entrada(client)) == ["email"]
+    assert com_autofocus(entrada(client)) == ["text"]
 
 
 def test_depois_do_erro_com_email_o_foco_vai_para_a_senha(client, membro):
@@ -51,9 +51,10 @@ def test_depois_do_erro_com_email_o_foco_vai_para_a_senha(client, membro):
     )
 
     html = resposta.content.decode()
-    assert "E-mail ou senha incorretos." in html
+    assert "Matrícula ou senha incorretas." in html
     assert com_autofocus(html) == ["password"]
-    assert 'autocomplete="email"' in html and 'autocomplete="current-password"' in html
+    assert 'autocomplete="username"' in html
+    assert 'autocomplete="current-password"' in html
 
 
 def test_um_so_h1_e_sem_faixa_nem_menu(client):

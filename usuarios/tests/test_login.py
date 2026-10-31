@@ -33,7 +33,7 @@ def test_senha_errada_nao_entra_e_mostra_o_erro(client, membro):
     resposta = entrar(client, "pessoa1@exemplo.test", "senha-errada")
 
     assert resposta.status_code == 200
-    assert "E-mail ou senha incorretos." in resposta.content.decode()
+    assert "Matrícula ou senha incorretas." in resposta.content.decode()
     assert not esta_logado(client)
 
 
