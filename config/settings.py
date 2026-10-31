@@ -97,7 +97,7 @@ DATABASES = {
 }
 
 
-# Usuario proprio: login por e-mail (veja usuarios/models.py)
+# Usuario proprio: login por e-mail ou matricula (veja usuarios/models.py)
 
 AUTH_USER_MODEL = "usuarios.Usuario"
 
@@ -105,8 +105,9 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
-# Limite de tentativas de login: com LOGIN_MAX_TENTATIVAS senhas erradas para o
-# mesmo e-mail nos ultimos LOGIN_JANELA_MINUTOS minutos, o e-mail fica bloqueado.
+# Limite de tentativas de login: com LOGIN_MAX_TENTATIVAS senhas erradas para a
+# mesma pessoa (pelo e-mail ou pela matricula) nos ultimos LOGIN_JANELA_MINUTOS
+# minutos, a pessoa fica bloqueada.
 AUTHENTICATION_BACKENDS = ["usuarios.backends.LimiteTentativasBackend"]
 LOGIN_MAX_TENTATIVAS = 5
 LOGIN_JANELA_MINUTOS = 15

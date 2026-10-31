@@ -51,7 +51,7 @@ def test_depois_do_erro_com_email_o_foco_vai_para_a_senha(client, membro):
     )
 
     html = resposta.content.decode()
-    assert "Matrícula ou senha incorretas." in html
+    assert "E-mail, matrícula ou senha incorretos." in html
     assert com_autofocus(html) == ["password"]
     assert 'autocomplete="username"' in html
     assert 'autocomplete="current-password"' in html

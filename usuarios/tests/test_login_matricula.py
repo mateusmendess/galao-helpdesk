@@ -12,7 +12,7 @@ pytestmark = pytest.mark.django_db
 
 # Senha errada derivada da do conftest (nada de senha escrita no teste).
 SENHA_ERRADA = SENHA_DE_TESTE + "-errada"
-MENSAGEM_ERRO = "Matrícula ou senha incorretas."
+MENSAGEM_ERRO = "E-mail, matrícula ou senha incorretos."
 MENSAGEM_BLOQUEIO = "Muitas tentativas de entrada. Tente de novo em alguns minutos."
 
 
@@ -252,7 +252,7 @@ def test_tela_pede_matricula_em_campo_de_texto(client):
     html = client.get(reverse("login")).content.decode()
 
     campo = re.search(r'<input type="text" name="username"[^>]*>', html)[0]
-    assert re.search(r'<label for="id_username"[^>]*>Matrícula</label>', html)
+    assert re.search(r'<label for="id_username"[^>]*>E-mail ou matrícula</label>', html)
     assert ">E-mail</label>" not in html
     assert 'autocomplete="username"' in campo
     assert 'autocapitalize="none"' in campo and 'spellcheck="false"' in campo

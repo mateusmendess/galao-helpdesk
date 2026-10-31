@@ -49,7 +49,7 @@ No /admin/, o mixin `MensagensNoFeminino` (em `fila/admin.py`) põe no feminino 
 ## 3. Modelos (tabelas)
 
 ### Usuario (usuário próprio do Django)
-- Login por **e-mail** (único, sempre em minúsculas); não existe nome de usuário
+- Login por **e-mail** (único, sempre em minúsculas) ou **matrícula** (opcional, só números); não existe nome de usuário
 - Campos do Django (nome, senha, `is_active`, `is_staff`, `is_superuser`)
 - `ordem`: posição na fila (começa em 1), única; pode ficar vazia para quem não está na fila
 - Admin do sistema = `is_staff` e `is_superuser` ligados; membro = os dois desligados; `is_active` = ainda faz parte do time

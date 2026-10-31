@@ -12,7 +12,7 @@ from usuarios.models import FalhaLogin
 pytestmark = pytest.mark.django_db
 
 MENSAGEM_BLOQUEIO = "Muitas tentativas de entrada. Tente de novo em alguns minutos."
-MENSAGEM_ERRO = "Matrícula ou senha incorretas."
+MENSAGEM_ERRO = "E-mail, matrícula ou senha incorretos."
 
 
 def entrar(client, email, senha):
