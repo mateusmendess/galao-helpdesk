@@ -32,7 +32,7 @@
       {# Matricula ou e-mail no mesmo campo (texto, nao numerico). #}
       {# Voltou com erro e com o campo preenchido: o foco vai direto para a senha. #}
       <div>
-        <label for="{{ form.username.id_for_label }}" class="block text-[15px] font-semibold">Matrícula</label>
+        <label for="{{ form.username.id_for_label }}" class="block text-[15px] font-semibold">E-mail ou matrícula</label>
         <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
                value="{{ form.username.value|default_if_none:'' }}" autocomplete="username" autocapitalize="none" spellcheck="false" {% if not form.errors or not form.username.value %}autofocus {% endif %}required
                class="mt-1.5 block min-h-12 w-full rounded-[10px] border bg-white px-3 py-2.5 text-base text-texto {% if form.username.errors %}border-erro{% else %}border-[#7f8f97]{% endif %}">

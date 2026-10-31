@@ -1,3 +1,4 @@
+from django.contrib.admin.forms import AdminAuthenticationForm
 from django.contrib.auth.forms import (
     AdminUserCreationForm,
     AuthenticationForm,
@@ -41,7 +42,7 @@ class EntrarForm(AuthenticationForm):
 
     error_messages = {
         **AuthenticationForm.error_messages,
-        "invalid_login": "Matrícula ou senha incorretas.",
+        "invalid_login": "E-mail, matrícula ou senha incorretos.",
         "bloqueado": "Muitas tentativas de entrada. Tente de novo em alguns minutos.",
     }
 
@@ -52,6 +53,19 @@ class EntrarForm(AuthenticationForm):
         if identificador and esta_bloqueado(identificador):
             raise ValidationError(self.error_messages["bloqueado"], code="bloqueado")
         return super().clean()
+
+
+class EntrarPainelForm(AdminAuthenticationForm):
+    """Login do /admin/: mesmo rotulo e mesma mensagem de erro do /entrar/."""
+
+    error_messages = {
+        **AdminAuthenticationForm.error_messages,
+        "invalid_login": EntrarForm.error_messages["invalid_login"],
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "E-mail ou matrícula"
 
 
 class TrocarSenhaForm(PasswordChangeForm):
